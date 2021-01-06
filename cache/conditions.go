@@ -23,7 +23,7 @@ func _sliceIterator(iterator func(value string) bool, slice []string) bool {
 
 func _sliceContainsPrefix(searchValue string, slice []string) bool {
 	return _sliceIterator(func(value string) bool {
-		return strings.HasPrefix(value, searchValue)
+		return strings.HasPrefix(searchValue, value)
 	}, slice)
 }
 
@@ -43,7 +43,7 @@ func _headerContainsAny(headerValue string, key ...string) bool {
 func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 	// don't cache if the server doesn't want us to
 	cacheControl := resp.Header.Get("Cache-Control")
-	if _headerContainsAny(cacheControl, "no-cache", "private") {
+	if _headerContainsAny(cacheControl, "no-cache", "no-store", "private") {
 		return false
 	}
 
@@ -59,12 +59,24 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 		return false
 	}
 
+	// no point in saving unsuccessful requests or redirects
+	// however, 304s are often sent by other caching servers, so we can cache those too
+	responseCode := resp.StatusCode
+	if responseCode < 200 || (responseCode >= 300 && responseCode != 304) {
+		return false
+	}
+
 	// we'll interpolate binary types later during saving/getting
 	// this list is just a general filter
 	contentType := resp.Header.Get("Content-Type")
 	allowedContentTypes := []string{
 		"text/html",
 		"text/css",
+		"application/javascript",
+		"text/javascript", // for compatibility with bad servers and websites
+		"image/png",
+		"image/jpeg",
+		"image/x-icon", // an unofficial type primarily used by .ico files, which almost all websites use (favicon.ico)
 	}
 	if !_sliceContainsPrefix(contentType, allowedContentTypes) {
 		return false
