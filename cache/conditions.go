@@ -95,5 +95,11 @@ func shouldGetFromCache(req *http.Request) bool {
 		return false
 	}
 
+	// get and save may be different is a URL supports multiple methods
+	method := req.Method
+	if method != "GET" {
+		return false
+	}
+
 	return true
 }
