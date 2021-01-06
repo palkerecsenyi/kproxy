@@ -15,6 +15,7 @@ import (
 func main() {
 	cleanMode := flag.Bool("clean", false, "Run a cache clean.")
 	enableMetadata := flag.Bool("metadata", false, "Connect to MongoDB to store MaxAge metadata")
+	port := flag.String("port", "80", "The port to run the proxy server on")
 	flag.Parse()
 
 	if *enableMetadata {
@@ -55,7 +56,7 @@ func main() {
 		return resp
 	})
 
-	err := http.ListenAndServe(":8080", proxyServer)
+	err := http.ListenAndServe(":"+*port, proxyServer)
 
 	if err != nil {
 		log.Fatal(err)
