@@ -28,13 +28,11 @@ func main() {
 	})
 
 	proxyServer.OnResponse(condition).DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
-		resp.Header.Add("X-Cache", "kProxy")
-
 		if userData, ok := ctx.UserData.(cache.ProxyCacheState); ok {
 			if userData.FromCache {
 				resp.Header.Add("X-Cache", "Hit from kProxy")
 			} else {
-				resp.Header.Add("X-Proxy-Source", "Miss from kProxy")
+				resp.Header.Add("X-Cache", "Miss from kProxy")
 				defer cache.Save(resp, ctx)
 			}
 		}
