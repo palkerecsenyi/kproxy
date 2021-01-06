@@ -9,7 +9,7 @@ services:
       - KPROXY_CERT=/opt/keys/kproxy-ca.pem
       - KPROXY_KEY=/opt/keys/kproxy-ca.key
     ports:
-      - '80:8080'
+      - '8080:8080'
     restart: always
     build: .
     entrypoint: go run main.go -port=8080
