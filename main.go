@@ -1,19 +1,34 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"github.com/elazarl/goproxy"
 	"kproxy/cache"
 	"kproxy/certificate"
 	"kproxy/metadata"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 )
 
 func main() {
-	if _, enableMetadata := os.LookupEnv("KPROXY_METADATA_ENABLED"); enableMetadata {
+	cleanMode := flag.Bool("clean", false, "Run a cache clean.")
+	enableMetadata := flag.Bool("metadata", false, "Connect to MongoDB to store MaxAge metadata")
+	flag.Parse()
+
+	if *enableMetadata {
 		metadata.Init()
+	}
+
+	if *cleanMode {
+		if !*enableMetadata {
+			panic("Cannot run cache clean without MongoDB")
+		}
+
+		fmt.Println("Running a cache clean!")
+		metadata.Clean()
+		return
 	}
 
 	certificate.SetCA()

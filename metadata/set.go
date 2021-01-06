@@ -7,6 +7,10 @@ import (
 )
 
 func SetMaxAge(fileName string, maxAge time.Duration) {
+	if maxAge.Nanoseconds() == 0 {
+		return
+	}
+
 	collection, ctx := getCollectionSingleton()
 	if collection == nil {
 		return
@@ -17,7 +21,7 @@ func SetMaxAge(fileName string, maxAge time.Duration) {
 		"name": fileName,
 	}, bson.M{
 		"$set": bson.M{
-			"expiryData": time.Now().Add(maxAge).Unix(),
+			"expiryDate": time.Now().Add(maxAge).Unix(),
 		},
 	}, &options.UpdateOptions{Upsert: &upsert})
 }

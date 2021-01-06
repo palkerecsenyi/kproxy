@@ -3,6 +3,7 @@ package cache
 import (
 	"fmt"
 	"github.com/elazarl/goproxy"
+	"kproxy/helpers"
 	"kproxy/metadata"
 	"net/http"
 	"os"
@@ -13,17 +14,17 @@ func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
 		return
 	}
 
-	urlSum := getUrlSum(ctx)
-	maxAge := getMaxAge(resp)
+	urlSum := helpers.GetUrlSum(ctx)
+	maxAge := helpers.GetMaxAge(resp)
 	metadata.SetMaxAge(urlSum, maxAge)
 
-	body := responseToBytes(resp)
+	body := helpers.ResponseToBytes(resp)
 	if body == nil {
 		return
 	}
 
 	err := os.WriteFile(
-		getObjectPath(urlSum),
+		helpers.GetObjectPath(urlSum),
 		body,
 		0777,
 	)

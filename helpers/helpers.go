@@ -1,4 +1,4 @@
-package cache
+package helpers
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func getPath() string {
+func GetPath() string {
 	rootPath := os.Getenv("KPROXY_PATH")
 	if rootPath == "" {
 		panic("KPROXY_PATH is unset")
@@ -23,12 +23,12 @@ func getPath() string {
 	return rootPath
 }
 
-func getObjectPath(object string) string {
-	rootPath := getPath()
+func GetObjectPath(object string) string {
+	rootPath := GetPath()
 	return path.Join(rootPath, object)
 }
 
-func responseToBytes(response *http.Response) []byte {
+func ResponseToBytes(response *http.Response) []byte {
 	buf, _ := io.ReadAll(response.Body)
 	cacheReader := io.NopCloser(bytes.NewBuffer(buf))
 	defer cacheReader.Close()
@@ -57,13 +57,13 @@ func responseToBytes(response *http.Response) []byte {
 	}
 }
 
-func getUrlSum(ctx *goproxy.ProxyCtx) string {
+func GetUrlSum(ctx *goproxy.ProxyCtx) string {
 	urlSha1 := sha1.New()
 	urlSha1.Write([]byte(ctx.Req.URL.String()))
 	return hex.EncodeToString(urlSha1.Sum(nil))
 }
 
-func getMaxAge(response *http.Response) time.Duration {
+func GetMaxAge(response *http.Response) time.Duration {
 	cacheControlHeader := response.Header.Get("Cache-Control")
 	if cacheControlHeader == "" {
 		return time.Duration(0)

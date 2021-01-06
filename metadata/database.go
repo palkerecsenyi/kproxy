@@ -9,19 +9,25 @@ import (
 
 var _collection *mongo.Collection
 var _context context.Context
+var _cancel context.CancelFunc
 
 func getCollectionSingleton() (*mongo.Collection, context.Context) {
+	_context, _cancel = context.WithTimeout(context.Background(), 5*time.Second)
+	defer _cancel()
 	return _collection, _context
 }
 
 func Init() {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	_context = ctx
-	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	_context, _cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	defer _cancel()
+
+	client, err := mongo.Connect(_context, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err != nil {
+		panic("Could not connect!")
+	}
 
 	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
+		if err = client.Disconnect(_context); err != nil {
 			panic(err)
 		}
 	}()

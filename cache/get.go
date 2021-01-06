@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/elazarl/goproxy"
 	"io/ioutil"
+	"kproxy/helpers"
 	"net/http"
 	"os"
 	"strings"
@@ -17,8 +18,8 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 		return nil
 	}
 
-	urlSum := getUrlSum(ctx)
-	data, err := os.ReadFile(getObjectPath(urlSum))
+	urlSum := helpers.GetUrlSum(ctx)
+	data, err := os.ReadFile(helpers.GetObjectPath(urlSum))
 	if err != nil {
 		ctx.UserData = ProxyCacheState{
 			FromCache: false,
@@ -32,7 +33,7 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	response.Header.Set("Cache-Control", "no-cache")
 
 	contentType := http.DetectContentType(data)
-	response.Header.Set("Content-Type", contentType)
+	// response.Header.Set("Content-Type", contentType)
 	var dataBuffer *bytes.Buffer
 	if strings.HasPrefix(contentType, "text/") {
 		dataBuffer = bytes.NewBufferString(string(data))
