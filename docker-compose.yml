@@ -9,12 +9,20 @@ services:
       - KPROXY_CERT=/opt/keys/kproxy-ca.pem
       - KPROXY_KEY=/opt/keys/kproxy-ca.key
     ports:
-      - '80:80'
+      - '80:8080'
     restart: always
     build: .
-    entrypoint: go run main.go -port=80
+    entrypoint: go run main.go -port=8080
+    networks:
+      - proxy-database-network
   mongo:
     image: mongo
     restart: always
     volumes:
       - '/opt/mongo:/data/db'
+    networks:
+      - proxy-database-network
+
+networks:
+  proxy-database-network:
+    driver: bridge
