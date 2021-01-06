@@ -5,7 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"github.com/elazarl/goproxy"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"path"
@@ -29,21 +29,28 @@ func getObjectPath(object string) string {
 }
 
 func responseToBytes(response *http.Response) []byte {
-	buf, _ := ioutil.ReadAll(response.Body)
-	cacheReader := ioutil.NopCloser(bytes.NewBuffer(buf))
+	buf, _ := io.ReadAll(response.Body)
+	cacheReader := io.NopCloser(bytes.NewBuffer(buf))
 	defer cacheReader.Close()
-	responseReader := ioutil.NopCloser(bytes.NewBuffer(buf))
+
+	// duplicate the buffer for the actual response itself
+	responseReader := io.NopCloser(bytes.NewBuffer(buf))
 	response.Body = responseReader
 
 	cacheBuffer := new(bytes.Buffer)
-	_, _ = cacheBuffer.ReadFrom(cacheReader)
+	size, err := cacheBuffer.ReadFrom(cacheReader)
+
+	var maxObjectSizeMegabytes int64 = 100
+	if err != nil || size > maxObjectSizeMegabytes*1000000 {
+		return nil
+	}
 
 	contentType := response.Header.Get("Content-Type")
 	if contentType == "" {
 		contentType = "text/html"
 	}
 
-	if strings.HasPrefix(contentType, "text/") || contentType == "application/javascript" {
+	if strings.HasPrefix(contentType, "text/") || contentType == "application/javascript" || contentType == "image/svg+xml" {
 		return []byte(cacheBuffer.String())
 	} else {
 		return cacheBuffer.Bytes()
