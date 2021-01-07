@@ -2,7 +2,6 @@ package metadata
 
 import (
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
 )
 
@@ -16,12 +15,26 @@ func SetMaxAge(fileName string, maxAge time.Duration) {
 		return
 	}
 
-	upsert := true
 	_, _ = collection.UpdateOne(ctx, bson.M{
 		"name": fileName,
 	}, bson.M{
 		"$set": bson.M{
 			"expiryDate": time.Now().Add(maxAge).Unix(),
 		},
-	}, &options.UpdateOptions{Upsert: &upsert})
+	}, upsertUpdate)
+}
+
+func SetMimeType(fileName, mimeType string) {
+	collection, ctx := getCollectionSingleton()
+	if collection == nil {
+		return
+	}
+
+	_, _ = collection.UpdateOne(ctx, bson.M{
+		"name": fileName,
+	}, bson.M{
+		"$set": bson.M{
+			"mimeType": mimeType,
+		},
+	}, upsertUpdate)
 }

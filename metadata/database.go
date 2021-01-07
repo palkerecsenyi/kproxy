@@ -7,6 +7,15 @@ import (
 	"time"
 )
 
+var upsert = true
+var upsertUpdate = &options.UpdateOptions{Upsert: &upsert}
+
+type DocumentData struct {
+	name       string
+	expiryDate int64
+	mimeType   string
+}
+
 var _collection *mongo.Collection
 var _context context.Context
 var _cancel context.CancelFunc

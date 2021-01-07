@@ -28,6 +28,14 @@ func GetObjectPath(object string) string {
 	return path.Join(rootPath, object)
 }
 
+func GetMimeTypeFromHeader(response *http.Response) string {
+	contentType := response.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = "text/html"
+	}
+	return contentType
+}
+
 func ResponseToBytes(response *http.Response) []byte {
 	buf, _ := io.ReadAll(response.Body)
 	cacheReader := io.NopCloser(bytes.NewBuffer(buf))
@@ -45,10 +53,7 @@ func ResponseToBytes(response *http.Response) []byte {
 		return nil
 	}
 
-	contentType := response.Header.Get("Content-Type")
-	if contentType == "" {
-		contentType = "text/html"
-	}
+	contentType := GetMimeTypeFromHeader(response)
 
 	if strings.HasPrefix(contentType, "text/") || contentType == "application/javascript" || contentType == "image/svg+xml" {
 		return []byte(cacheBuffer.String())

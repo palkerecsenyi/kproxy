@@ -8,11 +8,6 @@ import (
 	"time"
 )
 
-type documentData struct {
-	name       string
-	expiryDate int64
-}
-
 func Clean() {
 	collection, ctx := getCollectionSingleton()
 	contents, err := os.ReadDir(helpers.GetPath())
@@ -31,7 +26,7 @@ func Clean() {
 			continue
 		}
 
-		data := documentData{}
+		data := DocumentData{}
 		err = result.Decode(data)
 		if err != nil {
 			continue

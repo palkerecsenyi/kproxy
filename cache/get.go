@@ -5,6 +5,7 @@ import (
 	"github.com/elazarl/goproxy"
 	"io/ioutil"
 	"kproxy/helpers"
+	"kproxy/metadata"
 	"net/http"
 	"os"
 	"strings"
@@ -32,8 +33,8 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	response.Header.Add("X-Cache-Sum", urlSum)
 	response.Header.Set("Cache-Control", "no-cache")
 
-	contentType := http.DetectContentType(data)
-	// response.Header.Set("Content-Type", contentType)
+	contentType := metadata.GetMimeType(urlSum)
+	response.Header.Set("Content-Type", contentType)
 	var dataBuffer *bytes.Buffer
 	if strings.HasPrefix(contentType, "text/") {
 		dataBuffer = bytes.NewBufferString(string(data))

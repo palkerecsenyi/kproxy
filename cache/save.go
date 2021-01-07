@@ -23,6 +23,9 @@ func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
 		return
 	}
 
+	contentType := helpers.GetMimeTypeFromHeader(resp)
+	metadata.SetMimeType(urlSum, contentType)
+
 	err := os.WriteFile(
 		helpers.GetObjectPath(urlSum),
 		body,
