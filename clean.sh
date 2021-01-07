@@ -1,6 +1,6 @@
 docker-compose down
 
-docker run --it \
+docker run -it \
   --env KPROXY_DB_PATH=/opt/db \
   --env KPROXY_PATH=/opt/cache \
   --env KPROXY_MAX_SPACE=536870912000 \
@@ -8,4 +8,4 @@ docker run --it \
   -v /opt/cache:/opt/cache \
   kproxy_proxy go run main.go -clean
 
-docker-compose up
+docker-compose up -d
