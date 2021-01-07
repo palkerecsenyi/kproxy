@@ -45,6 +45,21 @@ func GetMimeTypeFromHeader(response *http.Response) string {
 	return contentType
 }
 
+func IsTextualMime(mime string) bool {
+	if strings.HasPrefix(mime, "text/") {
+		return true
+	}
+
+	if SliceContainsPrefix(mime, []string{
+		"application/javascript",
+		"image/svg+xml",
+	}) {
+		return true
+	}
+
+	return false
+}
+
 func ResponseToBytes(response *http.Response) []byte {
 	buf, _ := io.ReadAll(response.Body)
 	cacheReader := io.NopCloser(bytes.NewBuffer(buf))
@@ -64,7 +79,7 @@ func ResponseToBytes(response *http.Response) []byte {
 
 	contentType := GetMimeTypeFromHeader(response)
 
-	if strings.HasPrefix(contentType, "text/") || contentType == "application/javascript" || contentType == "image/svg+xml" {
+	if IsTextualMime(contentType) {
 		return []byte(cacheBuffer.String())
 	} else {
 		return cacheBuffer.Bytes()

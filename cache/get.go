@@ -8,7 +8,6 @@ import (
 	"kproxy/metadata"
 	"net/http"
 	"os"
-	"strings"
 )
 
 func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
@@ -20,6 +19,15 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	}
 
 	urlSum := helpers.GetUrlSum(ctx)
+	contentType := metadata.GetMimeType(urlSum)
+	// avoid unexpected behaviour by not assuming mime types
+	if contentType == "" {
+		ctx.UserData = ProxyCacheState{
+			FromCache: false,
+		}
+		return nil
+	}
+
 	data, err := os.ReadFile(helpers.GetObjectPath(urlSum))
 	if err != nil {
 		ctx.UserData = ProxyCacheState{
@@ -33,10 +41,9 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	response.Header.Add("X-Cache-Sum", urlSum)
 	response.Header.Set("Cache-Control", "no-cache")
 
-	contentType := metadata.GetMimeType(urlSum)
 	response.Header.Set("Content-Type", contentType)
 	var dataBuffer *bytes.Buffer
-	if strings.HasPrefix(contentType, "text/") {
+	if helpers.IsTextualMime(contentType) {
 		dataBuffer = bytes.NewBufferString(string(data))
 	} else {
 		dataBuffer = bytes.NewBuffer(data)

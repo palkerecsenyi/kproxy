@@ -21,13 +21,11 @@ func GetExpired(fileName string) bool {
 	return expiry.Before(time.Now())
 }
 
-const DefaultType = "text/html"
-
 func GetMimeType(fileName string) string {
 	db := getDatabaseSingleton()
 	value, err := db.Get([]byte(fileName + "-mime"))
 	if err != nil || value == nil {
-		return DefaultType
+		return ""
 	}
 
 	return string(value)

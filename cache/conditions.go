@@ -2,6 +2,7 @@ package cache
 
 import (
 	"github.com/elazarl/goproxy"
+	"kproxy/helpers"
 	"net/http"
 	"strings"
 )
@@ -12,32 +13,9 @@ type ProxyCacheState struct {
 	FromCache bool
 }
 
-func _sliceIterator(iterator func(value string) bool, slice []string) bool {
-	for _, value := range slice {
-		if iterator(value) {
-			return true
-		}
-	}
-	return false
-}
-
-func _sliceContainsPrefix(searchValue string, slice []string) bool {
-	return _sliceIterator(func(value string) bool {
-		return strings.HasPrefix(searchValue, value)
-	}, slice)
-}
-
-func _sliceContainsString(searchValue string, slice []string) bool {
-	return _sliceIterator(func(value string) bool {
-		return value == searchValue
-	}, slice)
-}
-
 func _headerContainsAny(headerValue string, key ...string) bool {
 	headerSlice := strings.Split(headerValue, ", ")
-	return _sliceIterator(func(value string) bool {
-		return _sliceContainsString(value, headerSlice)
-	}, key)
+	return helpers.SliceContainsAnyString(headerSlice, key...)
 }
 
 func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
@@ -80,7 +58,7 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 		// "image/svg+xml",
 		"image/x-icon", // an unofficial type primarily used by .ico files, which almost all websites use (favicon.ico)
 	}
-	if !_sliceContainsPrefix(contentType, allowedContentTypes) {
+	if !helpers.SliceContainsPrefix(contentType, allowedContentTypes) {
 		return false
 	}
 
