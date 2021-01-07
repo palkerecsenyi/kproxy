@@ -6,7 +6,7 @@ import (
 )
 
 func SetMaxAge(fileName string, maxAge time.Duration) {
-	if maxAge.Nanoseconds() == 0 {
+	if maxAge.Seconds() < 0 {
 		return
 	}
 

@@ -107,16 +107,16 @@ func GetRequestMaxAge(response *http.Response) time.Duration {
 		maxAgeSlice := strings.Split(key, "=")
 
 		if len(maxAgeSlice) != 2 {
-			return time.Duration(0)
+			return time.Duration(-1)
 		}
 
 		maxAgeValue, err := strconv.Atoi(maxAgeSlice[1])
 		if err != nil {
-			return time.Duration(0)
+			return time.Duration(-1)
 		}
 
 		return time.Duration(maxAgeValue) * time.Second
 	}
 
-	return time.Duration(0)
+	return time.Duration(-1)
 }

@@ -11,12 +11,12 @@ func GetExpired(fileName string) bool {
 	db := getDatabaseSingleton()
 	value, err := db.Get([]byte(fileName + "-expiry"))
 	if err != nil || value == nil {
-		return true
+		return false
 	}
 
 	numericValue, err := strconv.Atoi(string(value))
 	if err != nil {
-		return true
+		return false
 	}
 
 	expiry := time.Unix(int64(numericValue), 0)
