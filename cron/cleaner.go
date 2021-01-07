@@ -8,12 +8,17 @@ import (
 	"os"
 	"path"
 	"sort"
+	"strconv"
 )
 
 type fileWithScore struct {
 	name  string
 	score float64
 	size  int64
+}
+
+func _stats(removalCount int) {
+	fmt.Println("Removed " + strconv.Itoa(removalCount) + " files")
 }
 
 func Clean() {
@@ -26,6 +31,8 @@ func Clean() {
 	maxUsage := eviction.GetMaxUsage()
 	shouldEvict := currentUsage > maxUsage
 
+	removalCount := 0
+
 	var fileScores []fileWithScore
 	for _, file := range contents {
 		fileName := file.Name()
@@ -33,12 +40,14 @@ func Clean() {
 
 		if metadata.GetExpired(fileName) {
 			_ = os.Remove(filePath)
+			removalCount++
 			continue
 		}
 
 		score, size := eviction.ScoreFile(fileName)
 		if score == 0 {
 			_ = os.Remove(filePath)
+			removalCount++
 			continue
 		}
 
@@ -53,6 +62,7 @@ func Clean() {
 	}
 
 	if !shouldEvict {
+		_stats(removalCount)
 		return
 	}
 
@@ -68,6 +78,7 @@ func Clean() {
 		// delete the smallest-scored file from system
 		file := fileScores[0]
 		filePath := path.Join(helpers.GetPath(), file.name)
+		removalCount++
 		_ = os.Remove(filePath)
 
 		// subtract the usage
@@ -77,4 +88,5 @@ func Clean() {
 	}
 
 	fmt.Println("Done")
+	_stats(removalCount)
 }
