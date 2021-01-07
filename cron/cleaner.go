@@ -42,6 +42,7 @@ func Clean() {
 			continue
 		}
 
+		fmt.Println(score)
 		if shouldEvict {
 			fileScores = append(fileScores, fileWithScore{
 				name:  fileName,
