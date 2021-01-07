@@ -14,19 +14,11 @@ import (
 
 func main() {
 	cleanMode := flag.Bool("clean", false, "Run a cache clean.")
-	enableMetadata := flag.Bool("metadata", false, "Connect to MongoDB to store MaxAge metadata")
 	port := flag.String("port", "80", "The port to run the proxy server on")
 	flag.Parse()
 
-	if *enableMetadata {
-		metadata.Init()
-	}
-
+	metadata.Init()
 	if *cleanMode {
-		if !*enableMetadata {
-			panic("Cannot run cache clean without MongoDB")
-		}
-
 		fmt.Println("Running a cache clean!")
 		metadata.Clean()
 		return

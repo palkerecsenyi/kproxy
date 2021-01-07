@@ -1,8 +1,7 @@
 package metadata
 
 import (
-	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
+	"strconv"
 	"time"
 )
 
@@ -11,33 +10,12 @@ func SetMaxAge(fileName string, maxAge time.Duration) {
 		return
 	}
 
-	collection, ctx := getCollectionSingleton()
-	if collection == nil {
-		return
-	}
-
-	_, _ = collection.UpdateOne(ctx, bson.M{
-		"name": fileName,
-	}, bson.M{
-		"$set": bson.M{
-			"expiryDate": time.Now().Add(maxAge).Unix(),
-		},
-	}, upsertUpdate)
+	db := getDatabaseSingleton()
+	expiry := strconv.FormatInt(time.Now().Add(maxAge).Unix(), 10)
+	_ = db.Put([]byte(fileName+"-expiry"), []byte(expiry))
 }
 
 func SetMimeType(fileName, mimeType string) {
-	collection, ctx := getCollectionSingleton()
-	if collection == nil {
-		return
-	}
-
-	_, err := collection.UpdateOne(ctx, bson.M{
-		"name": fileName,
-	}, bson.M{
-		"$set": bson.M{
-			"mimeType": mimeType,
-		},
-	}, upsertUpdate)
-
-	fmt.Println(err)
+	db := getDatabaseSingleton()
+	_ = db.Put([]byte(fileName+"-mime"), []byte(mimeType))
 }

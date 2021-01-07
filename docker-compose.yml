@@ -4,25 +4,14 @@ services:
     volumes:
       - '/opt/cache:/opt/cache'
       - '/opt/keys:/opt/keys'
+      - '/opt/db:/opt/db'
     environment:
       - KPROXY_PATH=/opt/cache
+      - KPROXY_DB_PATH=/opt/db
       - KPROXY_CERT=/opt/keys/kproxy-ca.pem
       - KPROXY_KEY=/opt/keys/kproxy-ca.key
     ports:
       - '8080:8080'
     restart: always
     build: .
-    entrypoint: go run main.go -port=8080 -metadata
-    networks:
-      - proxy-database-network
-  mongo:
-    image: mongo
-    restart: always
-    volumes:
-      - '/opt/mongo:/data/db'
-    networks:
-      - proxy-database-network
-
-networks:
-  proxy-database-network:
-    driver: bridge
+    entrypoint: go run main.go -port=8080

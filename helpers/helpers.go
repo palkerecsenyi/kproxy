@@ -14,6 +14,15 @@ import (
 	"time"
 )
 
+func GetDatabasePath() string {
+	databasePath := os.Getenv("KPROXY_DB_PATH")
+	if databasePath == "" {
+		panic("KPROXY_DB_PATH is unset")
+	}
+
+	return databasePath
+}
+
 func GetPath() string {
 	rootPath := os.Getenv("KPROXY_PATH")
 	if rootPath == "" {

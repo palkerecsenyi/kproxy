@@ -1,36 +1,25 @@
 package metadata
 
 import (
-	"context"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"time"
+	"github.com/prologic/bitcask"
+	"kproxy/helpers"
 )
 
-var upsert = true
-var upsertUpdate = &options.UpdateOptions{Upsert: &upsert}
+var _db *bitcask.Bitcask
 
-type DocumentData struct {
-	name       string
-	expiryDate int64
-	mimeType   string
-}
+func getDatabaseSingleton() *bitcask.Bitcask {
+	if _db == nil {
+		panic("Database not yet initialised")
+	}
 
-var _collection *mongo.Collection
-var _context context.Context
-
-func getCollectionSingleton() (*mongo.Collection, context.Context) {
-	_context, _ = context.WithTimeout(context.Background(), 5*time.Second)
-	return _collection, _context
+	return _db
 }
 
 func Init() {
-	_context, _ = context.WithTimeout(context.Background(), 10*time.Second)
-
-	client, err := mongo.Connect(_context, options.Client().ApplyURI("mongodb://localhost:27017"))
+	db, err := bitcask.Open(helpers.GetDatabasePath())
 	if err != nil {
-		panic("Could not connect!")
+		panic(err)
 	}
 
-	_collection = client.Database("kproxy").Collection("metadata")
+	_db = db
 }
