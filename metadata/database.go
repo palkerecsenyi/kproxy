@@ -41,5 +41,5 @@ func Init() {
 		}
 	}()
 
-	_collection = client.Database("kproxy").Collection("file-metadata")
+	_collection = client.Database("kproxy").Collection("metadata")
 }
