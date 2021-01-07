@@ -20,9 +20,9 @@ func ScoreFile(fileName string) (float64, int) {
 		panic("File system doesn't support time metadata.")
 	}
 
-	birthTime := time.Unix(sysInfo.Birthtimespec.Sec, 0)
+	birthTime := time.Unix(sysInfo.Ctimespec.Sec, 0)
 	if birthTime == time.Unix(0, 0) {
-		panic("File system doesn't support birthtime metadata.")
+		panic("File system doesn't support ctime metadata.")
 	}
 
 	ageInSeconds := time.Now().Sub(birthTime).Seconds()
