@@ -1,6 +1,7 @@
 package metadata
 
 import (
+	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"time"
 )
@@ -30,11 +31,13 @@ func SetMimeType(fileName, mimeType string) {
 		return
 	}
 
-	_, _ = collection.UpdateOne(ctx, bson.M{
+	_, err := collection.UpdateOne(ctx, bson.M{
 		"name": fileName,
 	}, bson.M{
 		"$set": bson.M{
 			"mimeType": mimeType,
 		},
 	}, upsertUpdate)
+
+	fmt.Println(err)
 }
