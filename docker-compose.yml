@@ -12,7 +12,7 @@ services:
       - '8080:8080'
     restart: always
     build: .
-    entrypoint: go run main.go -port=8080
+    entrypoint: go run main.go -port=8080 -metadata
     networks:
       - proxy-database-network
   mongo:
