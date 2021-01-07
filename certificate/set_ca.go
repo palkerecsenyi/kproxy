@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"github.com/elazarl/goproxy"
-	"io/ioutil"
 	"os"
 )
 
@@ -12,8 +11,8 @@ func SetCA() {
 	certPath := os.Getenv("KPROXY_CERT")
 	keyPath := os.Getenv("KPROXY_KEY")
 
-	cert, _ := ioutil.ReadFile(certPath)
-	key, _ := ioutil.ReadFile(keyPath)
+	cert, _ := os.ReadFile(certPath)
+	key, _ := os.ReadFile(keyPath)
 
 	goproxyCa, err := tls.X509KeyPair(cert, key)
 	if err != nil {

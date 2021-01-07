@@ -28,6 +28,14 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 		return nil
 	}
 
+	isExpired := metadata.GetExpired(urlSum)
+	if isExpired {
+		ctx.UserData = ProxyCacheState{
+			FromCache: false,
+		}
+		return nil
+	}
+
 	data, err := os.ReadFile(helpers.GetObjectPath(urlSum))
 	if err != nil {
 		ctx.UserData = ProxyCacheState{

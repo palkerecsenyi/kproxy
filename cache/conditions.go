@@ -44,20 +44,9 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 		return false
 	}
 
-	// we'll interpolate binary types later during saving/getting
+	// we'll interpolate binary types later using helpers.IsTextualMime
 	// this list is just a general filter
 	contentType := resp.Header.Get("Content-Type")
-	allowedContentTypes := []string{
-		"text/html",
-		"text/css",
-		"application/javascript",
-		"text/javascript", // for compatibility with bad servers and websites
-		"image/png",
-		"image/jpeg",
-		"image/jpg",
-		// "image/svg+xml",
-		"image/x-icon", // an unofficial type primarily used by .ico files, which almost all websites use (favicon.ico)
-	}
 	if !helpers.SliceContainsPrefix(contentType, allowedContentTypes) {
 		return false
 	}

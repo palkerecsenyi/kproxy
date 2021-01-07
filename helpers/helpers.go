@@ -92,7 +92,7 @@ func GetUrlSum(ctx *goproxy.ProxyCtx) string {
 	return hex.EncodeToString(urlSha1.Sum(nil))
 }
 
-func GetMaxAge(response *http.Response) time.Duration {
+func GetRequestMaxAge(response *http.Response) time.Duration {
 	cacheControlHeader := response.Header.Get("Cache-Control")
 	if cacheControlHeader == "" {
 		return time.Duration(0)

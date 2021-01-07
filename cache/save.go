@@ -15,7 +15,7 @@ func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
 	}
 
 	urlSum := helpers.GetUrlSum(ctx)
-	maxAge := helpers.GetMaxAge(resp)
+	maxAge := helpers.GetRequestMaxAge(resp)
 	metadata.SetMaxAge(urlSum, maxAge)
 
 	body := helpers.ResponseToBytes(resp)
