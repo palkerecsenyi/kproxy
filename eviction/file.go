@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-func ScoreFile(fileName string) float64 {
+func ScoreFile(fileName string) (float64, int) {
 	popularity := metadata.GetVisits(fileName)
 	fileInfo := metadata.GetStat(fileName)
 	if fileInfo == nil {
-		return 0
+		return 0, 0
 	}
 
 	size := int(fileInfo.Size())
@@ -27,5 +27,5 @@ func ScoreFile(fileName string) float64 {
 
 	ageInSeconds := time.Now().Sub(birthTime).Seconds()
 
-	return scoreData(popularity, size, ageInSeconds)
+	return scoreData(popularity, size, ageInSeconds), size
 }

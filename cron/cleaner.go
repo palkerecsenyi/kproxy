@@ -13,6 +13,7 @@ import (
 type fileWithScore struct {
 	name  string
 	score float64
+	size  int64
 }
 
 func Clean() {
@@ -35,7 +36,7 @@ func Clean() {
 			continue
 		}
 
-		score := eviction.ScoreFile(fileName)
+		score, size := eviction.ScoreFile(fileName)
 		if score == 0 {
 			_ = os.Remove(filePath)
 			continue
@@ -45,6 +46,7 @@ func Clean() {
 			fileScores = append(fileScores, fileWithScore{
 				name:  fileName,
 				score: score,
+				size:  int64(size),
 			})
 		}
 	}
@@ -67,6 +69,8 @@ func Clean() {
 		filePath := path.Join(helpers.GetPath(), file.name)
 		_ = os.Remove(filePath)
 
+		// subtract the usage
+		currentUsage -= file.size
 		// remove it from the queue
 		fileScores = fileScores[1:]
 	}
