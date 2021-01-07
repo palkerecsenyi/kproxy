@@ -6,6 +6,7 @@ import (
 	"github.com/elazarl/goproxy"
 	"kproxy/cache"
 	"kproxy/certificate"
+	"kproxy/cron"
 	"kproxy/metadata"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ func main() {
 	metadata.Init()
 	if *cleanMode {
 		fmt.Println("Running a cache clean!")
-		metadata.Clean()
+		cron.Clean()
 		return
 	}
 

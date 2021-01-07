@@ -19,6 +19,8 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	}
 
 	urlSum := helpers.GetUrlSum(ctx)
+	metadata.IncrementVisits(urlSum)
+
 	contentType := metadata.GetMimeType(urlSum)
 	// avoid unexpected behaviour by not assuming mime types
 	if contentType == "" {

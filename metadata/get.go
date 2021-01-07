@@ -1,6 +1,8 @@
 package metadata
 
 import (
+	"kproxy/helpers"
+	"os"
 	"strconv"
 	"time"
 )
@@ -29,4 +31,28 @@ func GetMimeType(fileName string) string {
 	}
 
 	return string(value)
+}
+
+func GetVisits(fileName string) int {
+	db := getDatabaseSingleton()
+	value, err := db.Get([]byte(fileName + "-visits"))
+	if err != nil || value == nil {
+		return 0
+	}
+
+	numericValue, err := strconv.Atoi(string(value))
+	if err != nil {
+		return 0
+	}
+
+	return numericValue
+}
+
+func GetStat(fileName string) os.FileInfo {
+	file, err := os.Stat(helpers.GetObjectPath(fileName))
+	if err != nil {
+		return nil
+	}
+
+	return file
 }

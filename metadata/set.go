@@ -19,3 +19,11 @@ func SetMimeType(fileName, mimeType string) {
 	db := getDatabaseSingleton()
 	_ = db.Put([]byte(fileName+"-mime"), []byte(mimeType))
 }
+
+func IncrementVisits(fileName string) {
+	visits := GetVisits(fileName)
+	visits++
+
+	db := getDatabaseSingleton()
+	_ = db.Put([]byte(fileName+"-visits"), []byte(strconv.Itoa(visits)))
+}
