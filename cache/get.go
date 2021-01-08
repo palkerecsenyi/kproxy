@@ -8,6 +8,7 @@ import (
 	"kproxy/metadata"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
@@ -30,8 +31,8 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 		return nil
 	}
 
-	isExpired := metadata.GetExpired(urlSum)
-	if isExpired {
+	expired, expiresInSeconds := metadata.GetExpired(urlSum)
+	if expired {
 		ctx.UserData = ProxyCacheState{
 			FromCache: false,
 		}
@@ -49,6 +50,7 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	response := &http.Response{}
 	response.Header = make(http.Header)
 	response.Header.Add("X-Cache-Sum", urlSum)
+	response.Header.Add("X-Cache-Expires-In", strconv.Itoa(expiresInSeconds))
 	// allow browser caching for burst periods of one hour to reduce proxy load
 	response.Header.Set("Cache-Control", "max-age=3600")
 	// since the server didn't specify the request as being private, we can tell the browser it's public, too

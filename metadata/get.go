@@ -7,20 +7,26 @@ import (
 	"time"
 )
 
-func GetExpired(fileName string) bool {
+// returns: (expired), (expires in seconds — 0 if expired)
+func GetExpired(fileName string) (bool, int) {
 	db := getDatabaseSingleton()
 	value, err := db.Get([]byte(fileName + "-expiry"))
 	if err != nil || value == nil {
-		return false
+		return true, 0
 	}
 
 	numericValue, err := strconv.Atoi(string(value))
 	if err != nil {
-		return false
+		return true, 0
 	}
 
 	expiry := time.Unix(int64(numericValue), 0)
-	return expiry.Before(time.Now())
+	expired := expiry.Before(time.Now())
+	if expired {
+		return true, 0
+	} else {
+		return false, int(expiry.Sub(time.Now()).Seconds())
+	}
 }
 
 func GetMimeType(fileName string) string {

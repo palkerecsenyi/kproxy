@@ -38,7 +38,7 @@ func Clean() {
 		fileName := file.Name()
 		filePath := path.Join(helpers.GetPath(), fileName)
 
-		if metadata.GetExpired(fileName) {
+		if expired, _ := metadata.GetExpired(fileName); expired {
 			_ = os.Remove(filePath)
 			removalCount++
 			continue

@@ -2,6 +2,7 @@ package cache
 
 import (
 	"github.com/gobwas/glob"
+	"net/url"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ type cacheRule struct {
 
 var alwaysCache = []cacheRule{
 	{
-		glob: glob.MustCompile("*.wikipedia.org"),
+		glob: glob.MustCompile("*.wikipedia.org/*"),
 		onlyTypes: []string{
 			"text/html",
 		},
@@ -48,7 +49,7 @@ var alwaysCache = []cacheRule{
 
 var neverCache = []cacheRule{
 	{
-		glob: glob.MustCompile("example.net"),
+		glob: glob.MustCompile("example.net/*"),
 	},
 }
 
@@ -89,13 +90,15 @@ const (
 )
 
 // returns one of the above constants
-func shouldCacheUrl(url, contentType string) int {
+func shouldCacheUrl(url *url.URL, contentType string) int {
+	simpleUrl := url.Hostname() + url.Path
+
 	// neverCache rules take priority over alwaysCache
-	if testRule(neverCache, url, contentType) {
+	if testRule(neverCache, simpleUrl, contentType) {
 		return forceNoCache
 	}
 
-	if testRule(alwaysCache, url, contentType) {
+	if testRule(alwaysCache, simpleUrl, contentType) {
 		return forceCache
 	}
 

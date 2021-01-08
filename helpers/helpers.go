@@ -92,8 +92,8 @@ func GetUrlSum(ctx *goproxy.ProxyCtx) string {
 	return hex.EncodeToString(urlSha1.Sum(nil))
 }
 
-// 3 months
-var defaultMaxAge = time.Duration(24) * time.Hour * 28 * 3
+// 1 day
+var defaultMaxAge = time.Duration(24) * time.Hour
 
 func GetRequestMaxAge(response *http.Response) time.Duration {
 	cacheControlHeader := response.Header.Get("Cache-Control")
@@ -115,6 +115,10 @@ func GetRequestMaxAge(response *http.Response) time.Duration {
 
 		maxAgeValue, err := strconv.Atoi(maxAgeSlice[1])
 		if err != nil {
+			return defaultMaxAge
+		}
+
+		if maxAgeValue == 0 {
 			return defaultMaxAge
 		}
 

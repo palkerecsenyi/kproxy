@@ -45,7 +45,7 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 	}
 
 	// these overrides only override server Cache-Control headers
-	switch shouldCacheUrl(ctx.Req.URL.String(), contentType) {
+	switch shouldCacheUrl(ctx.Req.URL, contentType) {
 	case forceCache:
 		return true
 	case forceNoCache:
