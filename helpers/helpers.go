@@ -72,7 +72,7 @@ func ResponseToBytes(response *http.Response) []byte {
 	cacheBuffer := new(bytes.Buffer)
 	size, err := cacheBuffer.ReadFrom(cacheReader)
 
-	var maxObjectSizeMegabytes int64 = 100
+	var maxObjectSizeMegabytes int64 = 500
 	if err != nil || size > maxObjectSizeMegabytes*1000000 {
 		return nil
 	}

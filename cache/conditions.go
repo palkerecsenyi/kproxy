@@ -19,12 +19,6 @@ func _headerContainsAny(headerValue string, key ...string) bool {
 }
 
 func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
-	// don't cache if the server doesn't want us to
-	cacheControl := resp.Header.Get("Cache-Control")
-	if _headerContainsAny(cacheControl, "no-cache", "no-store", "private") {
-		return false
-	}
-
 	// don't even _try_ to cache anything that isn't http/s
 	urlScheme := ctx.Req.URL.Scheme
 	if urlScheme != "http" && urlScheme != "https" {
@@ -44,10 +38,23 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 		return false
 	}
 
-	// we'll interpolate binary types later using helpers.IsTextualMime
-	// this list is just a general filter
+	// disallow caching anything that isn't an accept mime type
 	contentType := resp.Header.Get("Content-Type")
 	if !helpers.SliceContainsPrefix(contentType, allowedContentTypes) {
+		return false
+	}
+
+	// these overrides only override server Cache-Control headers
+	switch shouldCacheUrl(ctx.Req.URL.String(), contentType) {
+	case forceCache:
+		return true
+	case forceNoCache:
+		return false
+	}
+
+	// don't cache if the server doesn't want us to
+	cacheControl := resp.Header.Get("Cache-Control")
+	if _headerContainsAny(cacheControl, "no-cache", "no-store", "private") {
 		return false
 	}
 
