@@ -49,7 +49,10 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	response := &http.Response{}
 	response.Header = make(http.Header)
 	response.Header.Add("X-Cache-Sum", urlSum)
-	response.Header.Set("Cache-Control", "no-cache")
+	// allow browser caching for burst periods of one hour to reduce proxy load
+	response.Header.Set("Cache-Control", "max-age=3600")
+	// since the server didn't specify the request as being private, we can tell the browser it's public, too
+	response.Header.Add("Cache-Control", "public")
 
 	response.Header.Set("Content-Type", contentType)
 	var dataBuffer *bytes.Buffer
