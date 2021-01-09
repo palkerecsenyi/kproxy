@@ -52,6 +52,8 @@ func IsTextualMime(mime string) bool {
 
 	if SliceContainsPrefix(mime, []string{
 		"application/javascript",
+		"application/json",
+		"application/hal+json",
 		"image/svg+xml",
 	}) {
 		return true
