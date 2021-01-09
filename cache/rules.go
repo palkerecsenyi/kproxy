@@ -49,7 +49,7 @@ var alwaysCache = []cacheRule{
 
 var neverCache = []cacheRule{
 	{
-		glob: glob.MustCompile("example.net/*"),
+		glob: glob.MustCompile("**cloud.google.com/*"),
 	},
 }
 
