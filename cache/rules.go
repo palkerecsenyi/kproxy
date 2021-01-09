@@ -11,8 +11,6 @@ var allowedContentTypes = []string{
 	"text/html",
 	"text/css",
 	"application/javascript",
-	"application/hal+json",
-	"application/json",
 	"text/javascript", // for compatibility with bad servers and websites
 
 	"image/png",
