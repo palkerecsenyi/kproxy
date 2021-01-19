@@ -56,6 +56,12 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	// since the server didn't specify the request as being private, we can tell the browser it's public, too
 	response.Header.Add("Cache-Control", "public")
 
+	// yes this is horrifyingly unsafe
+	if origin := ctx.Req.Header.Get("Origin"); origin != "" {
+		response.Header.Add("Access-Control-Allow-Origin", origin)
+		response.Header.Add("Access-Control-Allow-Credentials", "true")
+	}
+
 	response.Header.Set("Content-Type", contentType)
 	var dataBuffer *bytes.Buffer
 	if helpers.IsTextualMime(contentType) {
