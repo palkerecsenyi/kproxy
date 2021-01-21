@@ -9,7 +9,7 @@ import (
 
 // returns: (expired), (expires in seconds — 0 if expired)
 func GetExpired(fileName string) (bool, int) {
-	db := getDatabaseSingleton()
+	db := GetDatabaseSingleton()
 	value, err := db.Get([]byte(fileName + "-expiry"))
 	if err != nil || value == nil {
 		return true, 0
@@ -30,7 +30,7 @@ func GetExpired(fileName string) (bool, int) {
 }
 
 func GetMimeType(fileName string) string {
-	db := getDatabaseSingleton()
+	db := GetDatabaseSingleton()
 	value, err := db.Get([]byte(fileName + "-mime"))
 	if err != nil || value == nil {
 		return ""
@@ -40,7 +40,7 @@ func GetMimeType(fileName string) string {
 }
 
 func GetVisits(fileName string) int {
-	db := getDatabaseSingleton()
+	db := GetDatabaseSingleton()
 	value, err := db.Get([]byte(fileName + "-visits"))
 	if err != nil || value == nil {
 		return 0

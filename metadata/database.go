@@ -7,7 +7,7 @@ import (
 
 var _db *bitcask.Bitcask
 
-func getDatabaseSingleton() *bitcask.Bitcask {
+func GetDatabaseSingleton() *bitcask.Bitcask {
 	if _db == nil {
 		panic("Database not yet initialised")
 	}
