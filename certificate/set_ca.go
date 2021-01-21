@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+func GetPublicKey() []byte {
+	certPath := os.Getenv("KPROXY_CERT")
+	cert, _ := os.ReadFile(certPath)
+	return cert
+}
+
 func SetCA() {
 	certPath := os.Getenv("KPROXY_CERT")
 	keyPath := os.Getenv("KPROXY_KEY")

@@ -6,6 +6,7 @@ import (
 	"github.com/elazarl/goproxy"
 	"kproxy/cache"
 	"kproxy/certificate"
+	"kproxy/config"
 	"kproxy/cron"
 	"kproxy/metadata"
 	"log"
@@ -16,6 +17,8 @@ import (
 func main() {
 	cleanMode := flag.Bool("clean", false, "Run a cache clean.")
 	port := flag.String("port", "80", "The port to run the proxy server on")
+	enableConfigServer := flag.Bool("config", true, "Enable an HTTP server to allow proxy configuration")
+	configServerPort := flag.String("config-port", "8080", "The port to run the HTTP config server on (if enabled)")
 	flag.Parse()
 
 	metadata.Init()
@@ -23,6 +26,13 @@ func main() {
 		fmt.Println("Running a cache clean!")
 		cron.Clean()
 		return
+	}
+
+	if *enableConfigServer {
+		if *configServerPort == "" {
+			panic("No port given for config server.")
+		}
+		config.Start(*configServerPort)
 	}
 
 	certificate.SetCA()
