@@ -12,6 +12,7 @@ services:
       - KPROXY_KEY=/opt/keys/kproxy-ca.key
     ports:
       - '8080:8080'
+      - '8081:8081'
     restart: always
     build: .
     entrypoint: go run main.go -port=8080 -config -config-port=8081

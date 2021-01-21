@@ -1,6 +1,7 @@
 package config
 
 import (
+	linuxproc "github.com/c9s/goprocinfo/linux"
 	"github.com/dustin/go-humanize"
 	"kproxy/certificate"
 	"kproxy/eviction"
@@ -12,7 +13,7 @@ import (
 func reportStatus(res http.ResponseWriter, req *http.Request) {
 	data := getJsonMap()
 
-	/*stat, err := linuxproc.ReadStat("/proc/stat")
+	stat, err := linuxproc.ReadStat("/proc/stat")
 	if err != nil {
 		data["error"] = "Failed fetching CPU usage"
 		sendJson(data, 500, res)
@@ -23,7 +24,7 @@ func reportStatus(res http.ResponseWriter, req *http.Request) {
 	cpuUsage["system"] = stat.CPUStatAll.System
 	cpuUsage["user"] = stat.CPUStatAll.User
 	cpuUsage["nice"] = stat.CPUStatAll.Nice
-	data["cpu"] = cpuUsage*/
+	data["cpu"] = cpuUsage
 
 	storageUsage := eviction.CalculateStorageUsage()
 	data["cache_usage_bytes"] = storageUsage
