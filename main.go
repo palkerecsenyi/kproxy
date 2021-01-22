@@ -48,9 +48,16 @@ func main() {
 
 	proxyServer.OnResponse(condition).DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
 		if userData, ok := ctx.UserData.(cache.ProxyCacheState); ok {
+
 			if userData.FromCache {
 				resp.Header.Add("X-Cache", "Hit from kProxy")
 			} else {
+				resp.Header.Add("X-Cache-Sum", metadata.ServerUrlSum(
+					ctx.Req.URL.String(),
+					userData.RequestHeaders,
+					resp.Header,
+				))
+
 				resp.Header.Add("X-Cache", "Miss from kProxy")
 				defer cache.Save(resp, ctx)
 			}
