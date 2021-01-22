@@ -12,38 +12,35 @@ import (
 )
 
 func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
+	userData := ProxyCacheState{
+		RequestHeaders: req.Header.Clone(), // these may get modified by GoProxy, so we need a definitive clone
+		FromCache:      false,
+	}
+
 	if !shouldGetFromCache(req) {
-		ctx.UserData = ProxyCacheState{
-			FromCache: false,
-		}
+		ctx.UserData = userData
 		return nil
 	}
 
-	urlSum := helpers.GetUrlSum(ctx)
+	urlSum := metadata.ClientUrlSum(req.URL.String(), req.Header)
 	metadata.IncrementVisits(urlSum)
 
 	contentType := metadata.GetMimeType(urlSum)
 	// avoid unexpected behaviour by not assuming mime types
 	if contentType == "" {
-		ctx.UserData = ProxyCacheState{
-			FromCache: false,
-		}
+		ctx.UserData = userData
 		return nil
 	}
 
 	expired, expiresInSeconds := metadata.GetExpired(urlSum)
 	if expired {
-		ctx.UserData = ProxyCacheState{
-			FromCache: false,
-		}
+		ctx.UserData = userData
 		return nil
 	}
 
 	data, err := os.ReadFile(helpers.GetObjectPath(urlSum))
 	if err != nil {
-		ctx.UserData = ProxyCacheState{
-			FromCache: false,
-		}
+		ctx.UserData = userData
 		return nil
 	}
 
@@ -79,9 +76,8 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	response.StatusCode = http.StatusOK
 	response.Status = http.StatusText(http.StatusOK)
 
-	ctx.UserData = ProxyCacheState{
-		FromCache: true,
-	}
+	userData.FromCache = true
+	ctx.UserData = userData
 
 	return response
 }

@@ -2,9 +2,6 @@ package helpers
 
 import (
 	"bytes"
-	"encoding/hex"
-	"github.com/elazarl/goproxy"
-	"hash/adler32"
 	"io"
 	"net/http"
 	"os"
@@ -86,16 +83,6 @@ func ResponseToBytes(response *http.Response) []byte {
 	}
 }
 
-func UrlSumFromString(url string) string {
-	adler := adler32.New()
-	_, _ = adler.Write([]byte(url))
-	return hex.EncodeToString(adler.Sum(nil))
-}
-
-func GetUrlSum(ctx *goproxy.ProxyCtx) string {
-	return UrlSumFromString(ctx.Req.URL.String())
-}
-
 // 1 day
 var defaultMaxAge = time.Duration(24) * time.Hour
 
@@ -130,4 +117,17 @@ func GetRequestMaxAge(response *http.Response) time.Duration {
 	}
 
 	return defaultMaxAge
+}
+
+func DecodeMultivalueHeader(headerValues []string) []string {
+	var allValues []string
+	for _, text := range headerValues {
+		values := strings.Split(text, ",")
+
+		for _, value := range values {
+			allValues = append(allValues, strings.TrimSpace(value))
+		}
+	}
+
+	return allValues
 }

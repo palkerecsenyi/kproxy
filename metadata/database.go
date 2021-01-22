@@ -2,7 +2,6 @@ package metadata
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/prologic/bitcask"
 	"kproxy/helpers"
 	"net/http"
@@ -33,7 +32,8 @@ type Resource struct {
 	MimeType string
 	Visits   int
 
-	Headers http.Header
+	Headers        http.Header // response headers from server
+	RequestHeaders http.Header // the client headers for which this resource was saved
 
 	// for background downloads via the config API
 	DownloadStatus string
@@ -50,9 +50,7 @@ func Get(name string) *Resource {
 		return resource
 	}
 
-	fmt.Println(string(value))
 	_ = json.Unmarshal(value, &resource)
-	fmt.Println(resource)
 	return resource
 }
 

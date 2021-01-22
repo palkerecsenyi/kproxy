@@ -3,7 +3,6 @@ package metadata
 import (
 	"kproxy/helpers"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -28,12 +27,15 @@ func IncrementVisits(fileName string) {
 	resource.IncrementVisits()
 }
 
-func SetRelevantHeaders(fileName string, header http.Header, headerNames []string) {
+func SetRelevantHeaders(fileName string, header, clientHeader http.Header, headerNames []string) {
 	resource := Get(fileName)
+	resource.RequestHeaders = clientHeader
 	resource.Headers = make(http.Header)
 
 	for key, values := range header {
-		if !helpers.SliceContainsString(strings.ToLower(key), headerNames) {
+		if !helpers.SliceIterator(func(value string) bool {
+			return http.CanonicalHeaderKey(key) == http.CanonicalHeaderKey(value)
+		}, headerNames) {
 			continue
 		}
 
@@ -43,4 +45,12 @@ func SetRelevantHeaders(fileName string, header http.Header, headerNames []strin
 	}
 
 	resource.Save()
+
+	fullServerChecksum := ServerUrlSum(fileName, clientHeader, header)
+	if fullServerChecksum != stringToSum(fileName) {
+		specificResource := Get(fullServerChecksum)
+		specificResource.Headers = resource.Headers
+		specificResource.RequestHeaders = clientHeader
+		specificResource.Save()
+	}
 }

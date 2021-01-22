@@ -30,7 +30,7 @@ func parseRequest(req *http.Request) (string, string) {
 		return "", ""
 	}
 
-	resourceUrlSum := helpers.UrlSumFromString(resource)
+	resourceUrlSum := metadata.ClientUrlSum(resource, nil)
 	return resource, resourceUrlSum
 }
 
