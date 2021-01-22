@@ -6,6 +6,16 @@ import (
 	"strings"
 )
 
+// use lowercase header names
+var cachedHeaders = []string{
+	// access-control-allow-origin is set dynamically
+	"access-control-allow-methods",
+	"access-control-allow-credentials",
+	"age",
+	"expires",
+	"accept-ranges",
+}
+
 // these MIME types are cached, and nothing else is
 var allowedContentTypes = []string{
 	"text/html",

@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/dustin/go-humanize"
-	"github.com/prologic/bitcask"
 	"io"
 	"kproxy/helpers"
 	"kproxy/metadata"
@@ -11,18 +10,17 @@ import (
 )
 
 type DownloadStatus struct {
-	Total    uint64
-	Database *bitcask.Bitcask
-	FileSum  string
+	Total   uint64
+	FileSum string
 }
 
 func (status *DownloadStatus) Write(data []byte) (int, error) {
 	bytes := len(data)
 	status.Total += uint64(bytes)
-	_ = status.Database.Put(
-		[]byte(status.FileSum+"-download"),
-		[]byte(humanize.Bytes(status.Total)+" downloaded"),
-	)
+
+	resource := metadata.Get(status.FileSum)
+	resource.UpdateDownload(humanize.Bytes(status.Total) + " downloaded")
+
 	return bytes, nil
 }
 
@@ -51,18 +49,19 @@ func downloadLargeFile(res http.ResponseWriter, req *http.Request) {
 		"Download started! Visit /download-status?url=" + resource,
 	))
 
-	db := metadata.GetDatabaseSingleton()
+	resourceData := metadata.Get(resourceUrlSum)
 	go func() {
-		_ = db.Put([]byte(resourceUrlSum+"-download"), []byte("Download started"))
+		resourceData.UpdateDownload("Download started")
+
 		response, err := http.Get(resource)
 		if err != nil {
-			_ = db.Put([]byte(resourceUrlSum+"-download"), []byte(err.Error()))
+			resourceData.UpdateDownload(err.Error())
 			return
 		}
 
 		output, err := os.Create(resourcePath)
 		if err != nil {
-			_ = db.Put([]byte(resourceUrlSum+"-download"), []byte("Error saving!"))
+			resourceData.UpdateDownload("Error saving!")
 			return
 		}
 
@@ -72,16 +71,15 @@ func downloadLargeFile(res http.ResponseWriter, req *http.Request) {
 		}()
 
 		statusTracker := &DownloadStatus{
-			Database: db,
-			FileSum:  resourceUrlSum,
+			FileSum: resourceUrlSum,
 		}
 		_, err = io.Copy(output, io.TeeReader(response.Body, statusTracker))
 		if err != nil {
-			_ = db.Put([]byte(resourceUrlSum+"-download"), []byte("Error initialising tracker stream!"))
+			resourceData.UpdateDownload("Couldn't initialise status tracker")
 			return
 		}
 
-		_ = db.Put([]byte(resourceUrlSum+"-download"), []byte("Download complete"))
+		resourceData.UpdateDownload("Download complete!")
 	}()
 }
 
@@ -93,15 +91,14 @@ func downloadStatus(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	db := metadata.GetDatabaseSingleton()
-	status, err := db.Get([]byte(resourceUrlSum + "-download"))
-	if err != nil {
+	resourceData := metadata.Get(resourceUrlSum)
+	if resourceData.DownloadStatus == "" {
 		res.WriteHeader(404)
 		_, _ = res.Write([]byte("Download not found"))
 		return
 	}
 
-	_, _ = res.Write(status)
+	_, _ = res.Write([]byte(resourceData.DownloadStatus))
 }
 
 func downloadSavedFile(res http.ResponseWriter, req *http.Request) {

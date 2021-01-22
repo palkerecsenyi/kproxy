@@ -2,25 +2,19 @@ package metadata
 
 import (
 	"kproxy/helpers"
+	"net/http"
 	"os"
-	"strconv"
 	"time"
 )
 
 // returns: (expired), (expires in seconds — 0 if expired)
 func GetExpired(fileName string) (bool, int) {
-	db := GetDatabaseSingleton()
-	value, err := db.Get([]byte(fileName + "-expiry"))
-	if err != nil || value == nil {
+	resource := Get(fileName)
+	if resource.Expiry == 0 {
 		return true, 0
 	}
 
-	numericValue, err := strconv.Atoi(string(value))
-	if err != nil {
-		return true, 0
-	}
-
-	expiry := time.Unix(int64(numericValue), 0)
+	expiry := time.Unix(resource.Expiry, 0)
 	expired := expiry.Before(time.Now())
 	if expired {
 		return true, 0
@@ -30,28 +24,13 @@ func GetExpired(fileName string) (bool, int) {
 }
 
 func GetMimeType(fileName string) string {
-	db := GetDatabaseSingleton()
-	value, err := db.Get([]byte(fileName + "-mime"))
-	if err != nil || value == nil {
-		return ""
-	}
-
-	return string(value)
+	resource := Get(fileName)
+	return resource.MimeType
 }
 
 func GetVisits(fileName string) int {
-	db := GetDatabaseSingleton()
-	value, err := db.Get([]byte(fileName + "-visits"))
-	if err != nil || value == nil {
-		return 0
-	}
-
-	numericValue, err := strconv.Atoi(string(value))
-	if err != nil {
-		return 0
-	}
-
-	return numericValue
+	resource := Get(fileName)
+	return resource.Visits
 }
 
 func GetStat(fileName string) os.FileInfo {
@@ -61,4 +40,15 @@ func GetStat(fileName string) os.FileInfo {
 	}
 
 	return file
+}
+
+func GetHeaders(fileName string) http.Header {
+	header := make(http.Header)
+	resource := Get(fileName)
+	if resource.Headers == nil {
+		return header
+	}
+
+	header = resource.Headers
+	return header
 }

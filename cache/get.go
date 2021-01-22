@@ -48,7 +48,8 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	}
 
 	response := &http.Response{}
-	response.Header = make(http.Header)
+	response.Header = metadata.GetHeaders(urlSum)
+
 	response.Header.Add("X-Cache-Sum", urlSum)
 	response.Header.Add("X-Cache-Expires-In", strconv.Itoa(expiresInSeconds))
 	// allow browser caching for burst periods of one hour to reduce proxy load
@@ -59,10 +60,10 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	// yes this is horrifyingly unsafe
 	if origin := ctx.Req.Header.Get("Origin"); origin != "" {
 		response.Header.Add("Access-Control-Allow-Origin", origin)
-		response.Header.Add("Access-Control-Allow-Credentials", "true")
 	}
 
 	response.Header.Set("Content-Type", contentType)
+
 	var dataBuffer *bytes.Buffer
 	if helpers.IsTextualMime(contentType) {
 		dataBuffer = bytes.NewBufferString(string(data))

@@ -1,7 +1,9 @@
 package metadata
 
 import (
-	"strconv"
+	"kproxy/helpers"
+	"net/http"
+	"strings"
 	"time"
 )
 
@@ -10,20 +12,35 @@ func SetMaxAge(fileName string, maxAge time.Duration) {
 		return
 	}
 
-	db := GetDatabaseSingleton()
-	expiry := strconv.FormatInt(time.Now().Add(maxAge).Unix(), 10)
-	_ = db.Put([]byte(fileName+"-expiry"), []byte(expiry))
+	resource := Get(fileName)
+	resource.Expiry = time.Now().Add(maxAge).Unix()
+	resource.Save()
 }
 
 func SetMimeType(fileName, mimeType string) {
-	db := GetDatabaseSingleton()
-	_ = db.Put([]byte(fileName+"-mime"), []byte(mimeType))
+	resource := Get(fileName)
+	resource.MimeType = mimeType
+	resource.Save()
 }
 
 func IncrementVisits(fileName string) {
-	visits := GetVisits(fileName)
-	visits++
+	resource := Get(fileName)
+	resource.IncrementVisits()
+}
 
-	db := GetDatabaseSingleton()
-	_ = db.Put([]byte(fileName+"-visits"), []byte(strconv.Itoa(visits)))
+func SetRelevantHeaders(fileName string, header http.Header, headerNames []string) {
+	resource := Get(fileName)
+	resource.Headers = make(http.Header)
+
+	for key, values := range header {
+		if !helpers.SliceContainsString(strings.ToLower(key), headerNames) {
+			continue
+		}
+
+		for _, value := range values {
+			resource.Headers.Add(key, value)
+		}
+	}
+
+	resource.Save()
 }
