@@ -36,7 +36,7 @@ func reportStatus(res http.ResponseWriter, req *http.Request) {
 	sendJson(data, 200, res)
 }
 
-func downloadCert(res http.ResponseWriter, req *http.Request) {
+func downloadCert(res http.ResponseWriter, _ *http.Request) {
 	res.Header().Set("Content-Type", "application/x-pem-file")
 	publicKey := certificate.GetPublicKey()
 	_, _ = res.Write(publicKey)

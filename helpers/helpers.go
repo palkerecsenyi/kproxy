@@ -2,9 +2,9 @@ package helpers
 
 import (
 	"bytes"
-	"crypto/sha1"
 	"encoding/hex"
 	"github.com/elazarl/goproxy"
+	"hash/adler32"
 	"io"
 	"net/http"
 	"os"
@@ -86,10 +86,14 @@ func ResponseToBytes(response *http.Response) []byte {
 	}
 }
 
+func UrlSumFromString(url string) string {
+	adler := adler32.New()
+	_, _ = adler.Write([]byte(url))
+	return hex.EncodeToString(adler.Sum(nil))
+}
+
 func GetUrlSum(ctx *goproxy.ProxyCtx) string {
-	urlSha1 := sha1.New()
-	urlSha1.Write([]byte(ctx.Req.URL.String()))
-	return hex.EncodeToString(urlSha1.Sum(nil))
+	return UrlSumFromString(ctx.Req.URL.String())
 }
 
 // 1 day

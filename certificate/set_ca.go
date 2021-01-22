@@ -14,10 +14,9 @@ func GetPublicKey() []byte {
 }
 
 func SetCA() {
-	certPath := os.Getenv("KPROXY_CERT")
-	keyPath := os.Getenv("KPROXY_KEY")
+	cert := GetPublicKey()
 
-	cert, _ := os.ReadFile(certPath)
+	keyPath := os.Getenv("KPROXY_KEY")
 	key, _ := os.ReadFile(keyPath)
 
 	goproxyCa, err := tls.X509KeyPair(cert, key)

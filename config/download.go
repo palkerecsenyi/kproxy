@@ -1,8 +1,6 @@
 package config
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
 	"github.com/dustin/go-humanize"
 	"github.com/prologic/bitcask"
 	"io"
@@ -34,10 +32,7 @@ func parseRequest(req *http.Request) (string, string) {
 		return "", ""
 	}
 
-	urlSha1 := sha1.New()
-	urlSha1.Write([]byte(resource))
-	resourceUrlSum := hex.EncodeToString(urlSha1.Sum(nil))
-
+	resourceUrlSum := helpers.UrlSumFromString(resource)
 	return resource, resourceUrlSum
 }
 
@@ -121,6 +116,7 @@ func downloadSavedFile(res http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		res.WriteHeader(500)
 		_, _ = res.Write([]byte("Error opening file! Maybe it doesn't exist."))
+		return
 	}
 
 	_, err = io.Copy(res, file)
