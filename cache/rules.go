@@ -2,7 +2,8 @@ package cache
 
 import (
 	"github.com/gobwas/glob"
-	"net/url"
+	"kproxy/metadata"
+	"net/http"
 	"strings"
 )
 
@@ -44,37 +45,33 @@ var allowedContentTypes = []string{
 	"video/mpeg",
 }
 
-type cacheRule struct {
-	glob      glob.Glob
-	onlyTypes []string
-}
-
-var alwaysCache = []cacheRule{
+var alwaysCache = []metadata.CacheRule{
 	{
-		glob: glob.MustCompile("*.wikipedia.org/*"),
-		onlyTypes: []string{
+		Glob: "*.wikipedia.org/*",
+		OnlyTypes: []string{
 			"text/html",
 		},
 	},
 }
 
-var neverCache = []cacheRule{
+var neverCache = []metadata.CacheRule{
 	{
-		glob: glob.MustCompile("**cloud.google.com/*"),
+		Glob: "**cloud.google.com/*",
 	},
 }
 
 // returns true for a positive match, false for no match
-func testRule(ruleSlice []cacheRule, url, contentType string) bool {
+func testRule(ruleSlice []metadata.CacheRule, url, contentType string) bool {
 	for _, item := range ruleSlice {
-		urlMatchesGlob := item.glob.Match(url)
+		compiledGlob := glob.MustCompile(item.Glob)
+		urlMatchesGlob := compiledGlob.Match(url)
 		if !urlMatchesGlob {
 			continue
 		}
 
-		if item.onlyTypes != nil {
+		if item.OnlyTypes != nil {
 			onlyTypeMatched := false
-			for _, onlyType := range item.onlyTypes {
+			for _, onlyType := range item.OnlyTypes {
 				if strings.HasPrefix(contentType, onlyType) {
 					onlyTypeMatched = true
 					break
@@ -101,14 +98,21 @@ const (
 )
 
 // returns one of the above constants
-func shouldCacheUrl(url *url.URL, contentType string) int {
-	simpleUrl := url.Hostname() + url.Path
+func shouldCacheUrl(req *http.Request, contentType string) int {
+	simpleUrl := req.URL.Hostname() + req.URL.Path
+
+	settings := metadata.GetSettings(req)
+	if testRule(settings.NeverCache, simpleUrl, contentType) {
+		return forceNoCache
+	}
+	if testRule(settings.AlwaysCache, simpleUrl, contentType) {
+		return forceCache
+	}
 
 	// neverCache rules take priority over alwaysCache
 	if testRule(neverCache, simpleUrl, contentType) {
 		return forceNoCache
 	}
-
 	if testRule(alwaysCache, simpleUrl, contentType) {
 		return forceCache
 	}

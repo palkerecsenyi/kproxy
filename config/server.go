@@ -1,9 +1,15 @@
 package config
 
-import "net/http"
+import (
+	"net/http"
+)
 
 func Start(port string) {
 	server := http.NewServeMux()
+
+	server.HandleFunc("/settings", getSettings)
+	server.HandleFunc("/settings/save", saveSettings)
+	server.HandleFunc("/settings/delete", deleteCacheRule)
 
 	server.HandleFunc("/schedule-download", downloadLargeFile)
 	server.HandleFunc("/download-status", downloadStatus)

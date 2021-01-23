@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+</head>
+<body>
+
+<h1>kProxy Settings</h1>
+<p>Your unique user ID is: <code>{{.ID}}</code></p>
+
+<h2>Caching rules</h2>
+<p>These rules override all built-in rules.</p>
+
+{{define "cacheRuleList"}}
+    <ul>
+        {{range .}}
+            <li>
+                {{.Glob}}
+                <a href="/settings/delete?glob={{.Glob}}&rule={{.Rule}}">
+                    (Delete)
+                </a>
+
+                <ul>
+                    {{range .OnlyTypes}}
+                        <li>{{.}}</li>
+                    {{end}}
+                </ul>
+            </li>
+        {{end}}
+    </ul>
+{{end}}
+
+<h3>Always cache</h3>
+{{template "cacheRuleList" .AlwaysCache}}
+
+<h3>Never cache</h3>
+{{template "cacheRuleList" .NeverCache}}
+
+<h3>Add new</h3>
+<form action="/settings/save" method="post">
+    <label for="rule">Rule</label>
+    <select
+            name="rule"
+            id="rule"
+    >
+        <option value="always">Always cache</option>
+        <option value="never">Never cache</option>
+    </select><br/>
+
+    <label for="glob">URL glob</label>
+    <input
+            type="text"
+            id="glob"
+            name="glob"
+    ><br/>
+
+    <label for="types">Content types (comma-separated)</label>
+    <input
+            type="text"
+            id="types"
+            name="only-types"
+    ><br/>
+
+    <input type="submit" />
+</form>
+
+</body>
+</html>
