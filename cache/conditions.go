@@ -6,6 +6,7 @@ import (
 	"kproxy/metadata"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type ProxyCacheState struct {
@@ -81,6 +82,7 @@ func shouldGetFromCache(req *http.Request, contentType, urlSum string) bool {
 		return false
 	} else if override == noRule && metadata.GetForceCache(urlSum) {
 		metadata.SetForceCache(urlSum, false)
+		metadata.SetMaxAge(urlSum, 1*time.Second)
 		return false
 	}
 
