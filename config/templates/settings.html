@@ -7,7 +7,10 @@
 <body>
 
 <h1>kProxy Settings</h1>
-<p>Your unique user ID is: <code>{{.ID}}</code></p>
+<p>
+    Your unique user ID is: <code>{{.ID}}</code>. It's calculated based on your user agent, locale weights, and other
+    data. It won't change if your IP address changes, but is browser-specific.
+</p>
 
 <h2>Caching rules</h2>
 <p>These rules override all built-in rules.</p>
