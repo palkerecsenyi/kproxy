@@ -80,6 +80,7 @@ func shouldGetFromCache(req *http.Request, contentType, urlSum string) bool {
 	if override := shouldCacheUrl(req, contentType); override == forceNoCache {
 		return false
 	} else if override == noRule && metadata.GetForceCache(urlSum) {
+		metadata.SetForceCache(urlSum, false)
 		return false
 	}
 
