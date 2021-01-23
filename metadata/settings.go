@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"hash/adler32"
 	"net/http"
-	"net/url"
 )
 
 type CacheRule struct {
@@ -20,14 +19,19 @@ type Settings struct {
 	NeverCache  []CacheRule
 }
 
+// instead of using req.RemoteAddr, we generate fingerprints using some more reliable data
 func GetUserId(req *http.Request) string {
-	parsedUrl, err := url.Parse("scheme://" + req.RemoteAddr)
-	if err != nil {
-		parsedUrl, _ = url.Parse("scheme://localhost")
-	}
+	// OS-specific and browser-specific
+	accept := req.Header.Get("Accept")
+	// OS-specific, and browser-specific
+	userAgent := req.UserAgent()
+	// Locale-specific
+	acceptLanguage := req.Header.Get("Accept-Language")
+
+	fingerprintData := accept + userAgent + acceptLanguage
 
 	adler := adler32.New()
-	_, _ = adler.Write([]byte(parsedUrl.Hostname()))
+	_, _ = adler.Write([]byte(fingerprintData))
 	return hex.EncodeToString(adler.Sum(nil))
 }
 
