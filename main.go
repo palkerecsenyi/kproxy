@@ -49,6 +49,7 @@ func main() {
 	proxyServer.OnResponse(condition).DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
 		if userData, ok := ctx.UserData.(cache.ProxyCacheState); ok {
 
+			resp.Header.Add("X-Cache-User", metadata.GetUserId(ctx.Req))
 			if userData.FromCache {
 				resp.Header.Add("X-Cache", "Hit from kProxy")
 			} else {
