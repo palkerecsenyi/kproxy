@@ -10,16 +10,16 @@ import (
 )
 
 func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
-	if !shouldSave(resp, ctx) {
-		return
-	}
-
 	userData, ok := ctx.UserData.(ProxyCacheState)
 	if !ok {
 		return
 	}
 
 	urlSum := metadata.ServerUrlSum(ctx.Req.URL.String(), userData.RequestHeaders, resp.Header)
+	if !shouldSave(resp, ctx, urlSum) {
+		return
+	}
+
 	contentType := helpers.GetMimeTypeFromHeader(resp)
 	if shouldCacheUrl(ctx.Req, contentType) == forceCache {
 		metadata.SetForceCache(urlSum, true)

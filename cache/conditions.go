@@ -6,7 +6,6 @@ import (
 	"kproxy/metadata"
 	"net/http"
 	"strings"
-	"time"
 )
 
 type ProxyCacheState struct {
@@ -21,7 +20,7 @@ func _headerContainsAny(headerValue string, key ...string) bool {
 	return helpers.SliceContainsAnyString(headerSlice, key...)
 }
 
-func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
+func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx, urlSum string) bool {
 	// don't even _try_ to cache anything that isn't http/s
 	urlScheme := ctx.Req.URL.Scheme
 	if urlScheme != "http" && urlScheme != "https" {
@@ -53,6 +52,10 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 		return true
 	case forceNoCache:
 		return false
+	case noRule:
+		if metadata.GetForceCache(urlSum) {
+			return false
+		}
 	}
 
 	// don't cache if the server doesn't want us to
@@ -81,8 +84,6 @@ func shouldGetFromCache(req *http.Request, contentType, urlSum string) bool {
 	if override := shouldCacheUrl(req, contentType); override == forceNoCache {
 		return false
 	} else if override == noRule && metadata.GetForceCache(urlSum) {
-		metadata.SetForceCache(urlSum, false)
-		metadata.SetMaxAge(urlSum, 1*time.Second)
 		return false
 	}
 
