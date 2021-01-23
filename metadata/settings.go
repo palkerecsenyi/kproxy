@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"hash/adler32"
 	"net/http"
+	"net/url"
 )
 
 type CacheRule struct {
@@ -20,8 +21,13 @@ type Settings struct {
 }
 
 func GetUserId(req *http.Request) string {
+	parsedUrl, err := url.Parse("scheme://" + req.RemoteAddr)
+	if err != nil {
+		parsedUrl, _ = url.Parse("scheme://localhost")
+	}
+
 	adler := adler32.New()
-	_, _ = adler.Write([]byte(req.RemoteAddr))
+	_, _ = adler.Write([]byte(parsedUrl.Hostname()))
 	return hex.EncodeToString(adler.Sum(nil))
 }
 

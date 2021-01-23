@@ -23,6 +23,7 @@ func _populateRuleIntoSlice(cacheRules []metadata.CacheRule, rule string) []meta
 
 func writeTemplate(name string, data interface{}, res http.ResponseWriter) {
 	tmpl := template.Must(template.ParseFiles("config/templates/" + name + ".html"))
+	res.Header().Add("Cache-Control", "no-cache")
 	_ = tmpl.Execute(res, data)
 }
 
@@ -68,6 +69,8 @@ func saveSettings(res http.ResponseWriter, req *http.Request) {
 }
 
 func deleteCacheRule(res http.ResponseWriter, req *http.Request) {
+	res.Header().Add("Cache-Control", "no-cache")
+
 	glob := req.URL.Query().Get("glob")
 	rule := req.URL.Query().Get("rule")
 	if glob == "" || (rule != "always" && rule != "never") {
