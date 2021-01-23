@@ -3,6 +3,7 @@ package cache
 import (
 	"github.com/elazarl/goproxy"
 	"kproxy/helpers"
+	"kproxy/metadata"
 	"net/http"
 	"strings"
 )
@@ -62,7 +63,7 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx) bool {
 	return true
 }
 
-func shouldGetFromCache(req *http.Request) bool {
+func shouldGetFromCache(req *http.Request, contentType, urlSum string) bool {
 	// don't cache if the client doesn't want us to
 	// e.g. when pressing ctrl/cmd+shift+r in chrome, it will user a Cache-Control: no-cache header
 	cacheControl := req.Header.Get("Cache-Control")
@@ -73,6 +74,12 @@ func shouldGetFromCache(req *http.Request) bool {
 	// get and save may be different is a URL supports multiple methods
 	method := req.Method
 	if method != "GET" {
+		return false
+	}
+
+	if override := shouldCacheUrl(req, contentType); override == forceNoCache {
+		return false
+	} else if override == noRule && metadata.GetForceCache(urlSum) {
 		return false
 	}
 

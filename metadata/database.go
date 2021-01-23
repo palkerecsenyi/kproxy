@@ -32,6 +32,8 @@ type Resource struct {
 	MimeType string
 	Visits   int
 
+	CachedForOverride bool // true if cached as a result of a global/user alwaysCache rule
+
 	Headers        http.Header // response headers from server
 	RequestHeaders http.Header // the client headers for which this resource was saved
 

@@ -52,3 +52,8 @@ func GetHeaders(fileName string) http.Header {
 	header = resource.Headers
 	return header
 }
+
+func GetForceCache(fileName string) bool {
+	resource := Get(fileName)
+	return resource.CachedForOverride
+}

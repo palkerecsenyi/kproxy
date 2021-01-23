@@ -20,6 +20,11 @@ func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
 	}
 
 	urlSum := metadata.ServerUrlSum(ctx.Req.URL.String(), userData.RequestHeaders, resp.Header)
+	contentType := helpers.GetMimeTypeFromHeader(resp)
+	if shouldCacheUrl(ctx.Req, contentType) == forceCache {
+		metadata.SetForceCache(urlSum, true)
+	}
+
 	maxAge := helpers.GetRequestMaxAge(resp)
 	metadata.SetMaxAge(urlSum, maxAge)
 
@@ -28,7 +33,6 @@ func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
 		return
 	}
 
-	contentType := helpers.GetMimeTypeFromHeader(resp)
 	metadata.SetMimeType(urlSum, contentType)
 	metadata.SetRelevantHeaders(ctx.Req.URL.String(), resp.Header, userData.RequestHeaders, cacheableHeaders)
 

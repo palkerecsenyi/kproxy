@@ -54,3 +54,9 @@ func SetRelevantHeaders(fileName string, header, clientHeader http.Header, heade
 		specificResource.Save()
 	}
 }
+
+func SetForceCache(fileName string, forced bool) {
+	resource := Get(fileName)
+	resource.CachedForOverride = forced
+	resource.Save()
+}

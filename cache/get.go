@@ -17,20 +17,20 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 		FromCache:      false,
 	}
 
-	if !shouldGetFromCache(req) {
-		ctx.UserData = userData
-		return nil
-	}
-
 	urlSum := metadata.ClientUrlSum(req.URL.String(), req.Header)
-	metadata.IncrementVisits(urlSum)
-
 	contentType := metadata.GetMimeType(urlSum)
 	// avoid unexpected behaviour by not assuming mime types
 	if contentType == "" {
 		ctx.UserData = userData
 		return nil
 	}
+
+	if !shouldGetFromCache(req, contentType, urlSum) {
+		ctx.UserData = userData
+		return nil
+	}
+
+	metadata.IncrementVisits(urlSum)
 
 	expired, expiresInSeconds := metadata.GetExpired(urlSum)
 	if expired {
