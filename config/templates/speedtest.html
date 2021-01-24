@@ -33,12 +33,11 @@
             '/speed-test/random?mb=' + megabytes,
         )
             .then(e => e.blob())
-            .then((e) => {
-                console.log(e);
+            .then(() => {
                 const millisecondsElapsed = performance.now() - start;
                 const secondsElapsed = millisecondsElapsed / 1000;
-                const avgSpeed = megabytes / secondsElapsed;
-                status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabytes}MB. Average: ${avgSpeed.toFixed(3)}MB/s`
+                const avgSpeed = megabytes / secondsElapsed * 8;
+                status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabytes}MB (${megabytes * 8}Mbs). Average: ${avgSpeed.toFixed(3)}Mb/s`
             });
     })
 </script>
