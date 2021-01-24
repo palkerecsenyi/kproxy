@@ -7,7 +7,7 @@
 <body>
 
 <label for="amount">Megabytes</label>
-<input id="amount" type="number" value="250" min="0" max="1000" /><br/>
+<input id="amount" type="number" value="250" min="1" max="500" /><br/>
 <button id="start">
     Go!
 </button>
@@ -20,6 +20,12 @@
     document.getElementById("start").addEventListener("click", () => {
         const megabytes = parseInt(document.getElementById("amount").value);
         const status = document.getElementById("status");
+
+        if (megabytes <= 0 || megabytes > 500) {
+            alert("Enter a number between 1 and 500");
+            return
+        }
+
         status.innerText = "Running test...";
 
         const start = performance.now()

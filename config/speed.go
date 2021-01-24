@@ -13,7 +13,7 @@ func getSpeedTestPage(res http.ResponseWriter, _ *http.Request) {
 func startSpeedTest(res http.ResponseWriter, req *http.Request) {
 	megabytesString := req.URL.Query().Get("mb")
 	megabytes, err := strconv.Atoi(megabytesString)
-	if megabytes <= 0 || megabytes > 1000 || err != nil {
+	if megabytes <= 0 || megabytes > 500 || err != nil {
 		res.WriteHeader(400)
 		return
 	}
@@ -27,5 +27,8 @@ func startSpeedTest(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Add("Cache-Control", "no-cache, no-store, private")
 	_, _ = res.Write(randomData)
-	randomData = make([]byte, 0)
+
+	if f, ok := res.(http.Flusher); ok {
+		f.Flush()
+	}
 }
