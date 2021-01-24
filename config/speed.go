@@ -27,4 +27,5 @@ func startSpeedTest(res http.ResponseWriter, req *http.Request) {
 
 	res.Header().Add("Cache-Control", "no-cache, no-store, private")
 	_, _ = res.Write(randomData)
+	randomData = make([]byte, 0)
 }

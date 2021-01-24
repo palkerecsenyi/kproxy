@@ -29,7 +29,7 @@
             .then(() => {
                 const millisecondsElapsed = performance.now() - start;
                 const secondsElapsed = millisecondsElapsed / 1000;
-                const avgSpeed = 250 / secondsElapsed;
+                const avgSpeed = megabytes / secondsElapsed;
                 status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabytes}MB. Average: ${avgSpeed.toFixed(3)}MB/s`
             });
     })
