@@ -7,7 +7,7 @@
 <body>
 
 <label for="amount">Megabytes</label>
-<input id="amount" type="number" value="250" min="1" max="500" /><br/>
+<input id="amount" type="number" value="50" min="1" max="500" /><br/>
 <button id="start">
     Go!
 </button>
@@ -32,7 +32,9 @@
         fetch(
             '/speed-test/random?mb=' + megabytes,
         )
-            .then(() => {
+            .then(e => e.blob())
+            .then((e) => {
+                console.log(e);
                 const millisecondsElapsed = performance.now() - start;
                 const secondsElapsed = millisecondsElapsed / 1000;
                 const avgSpeed = megabytes / secondsElapsed;
