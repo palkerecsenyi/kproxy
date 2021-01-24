@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<label for="amount">Megabytes</label>
+<label for="amount">Megabits</label>
 <input id="amount" type="number" value="50" min="1" max="500" /><br/>
 <button id="start">
     Go!
@@ -18,10 +18,10 @@
 
 <script type="application/javascript">
     document.getElementById("start").addEventListener("click", () => {
-        const megabytes = parseInt(document.getElementById("amount").value);
+        const megabits = parseInt(document.getElementById("amount").value);
         const status = document.getElementById("status");
 
-        if (megabytes <= 0 || megabytes > 500) {
+        if (megabits <= 0 || megabits > 500) {
             alert("Enter a number between 1 and 500");
             return
         }
@@ -30,14 +30,14 @@
 
         const start = performance.now()
         fetch(
-            '/speed-test/random?mb=' + megabytes,
+            '/speed-test/random?mb=' + Math.floor(megabits / 8),
         )
             .then(e => e.blob())
             .then(() => {
                 const millisecondsElapsed = performance.now() - start;
                 const secondsElapsed = millisecondsElapsed / 1000;
-                const avgSpeed = megabytes / secondsElapsed * 8;
-                status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabytes}MB (${megabytes * 8}Mbs). Average: ${avgSpeed.toFixed(3)}Mb/s`
+                const avgSpeed = megabits / secondsElapsed;
+                status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabits} megabits. Average: ${avgSpeed.toFixed(3)}Mb/s`
             });
     })
 </script>
