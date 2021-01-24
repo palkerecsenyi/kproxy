@@ -37,6 +37,7 @@ var allowedContentTypes = []string{
 	"font/ttf",
 	"font/woff",
 	"font/woff2",
+	"application/font-woff",
 	"application/font-woff2",
 	"font/otf",
 
