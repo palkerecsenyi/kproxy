@@ -61,8 +61,8 @@ func main() {
 				resp.Header.Add("X-Cache", "Hit from kProxy")
 			} else {
 				resp.Header.Add("X-Cache-Sum", metadata.ServerUrlSum(
-					ctx.Req.URL.String(),
-					userData.RequestHeaders,
+					resp.Request.URL.String(),
+					resp.Request.Header,
 					resp.Header,
 				))
 
