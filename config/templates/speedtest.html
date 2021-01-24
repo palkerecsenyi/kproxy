@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LAN Speed Test</title>
+</head>
+<body>
+
+<p id="status">
+    Running LAN speed test of 250MB...
+</p>
+
+<script type="application/javascript">
+    const start = performance.now()
+    fetch(
+        '/speed-test/random',
+    )
+    .then(() => {
+        const millisecondsElapsed = performance.now() - start;
+        const secondsElapsed = millisecondsElapsed / 1000;
+        const avgSpeed = 250 / secondsElapsed;
+        const status = document.getElementById("status")
+        status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download 250MB. Average: ${avgSpeed.toFixed(3)}MB/s`
+    });
+</script>
+
+</body>
+</html>
