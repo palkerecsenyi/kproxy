@@ -13,8 +13,7 @@ import (
 
 func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	userData := ProxyCacheState{
-		RequestHeaders: req.Header.Clone(), // these may get modified by GoProxy, so we need a definitive clone
-		FromCache:      false,
+		FromCache: false,
 	}
 
 	urlSum := metadata.ClientUrlSum(req.URL.String(), req.Header)

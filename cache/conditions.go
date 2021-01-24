@@ -11,8 +11,7 @@ import (
 type ProxyCacheState struct {
 	// true if the requested resource was taken from cache
 	// if true, no request was made
-	FromCache      bool
-	RequestHeaders http.Header
+	FromCache bool
 }
 
 func _headerContainsAny(headerValue string, key ...string) bool {

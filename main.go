@@ -47,6 +47,13 @@ func main() {
 	})
 
 	proxyServer.OnResponse(condition).DoFunc(func(resp *http.Response, ctx *goproxy.ProxyCtx) *http.Response {
+		if resp.StatusCode >= 400 {
+			response := goproxy.TextResponse(ctx.Req, "kProxy: "+resp.Status)
+			response.StatusCode = resp.StatusCode
+			response.Status = resp.Status
+			return response
+		}
+
 		if userData, ok := ctx.UserData.(cache.ProxyCacheState); ok {
 
 			resp.Header.Add("X-Cache-User", metadata.GetUserId(ctx.Req))

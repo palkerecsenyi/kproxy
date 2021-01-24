@@ -27,8 +27,8 @@ func IncrementVisits(fileName string) {
 	resource.IncrementVisits()
 }
 
-func SetRelevantHeaders(fileName string, header, clientHeader http.Header, headerNames []string) {
-	resource := Get(fileName)
+func SetRelevantHeaders(url string, header, clientHeader http.Header, headerNames []string) {
+	resource := Get(stringToSum(url))
 	resource.RequestHeaders = clientHeader
 	resource.Headers = make(http.Header)
 
@@ -46,10 +46,10 @@ func SetRelevantHeaders(fileName string, header, clientHeader http.Header, heade
 
 	resource.Save()
 
-	fullServerChecksum := ServerUrlSum(fileName, clientHeader, header)
-	if fullServerChecksum != stringToSum(fileName) {
+	fullServerChecksum := ServerUrlSum(url, clientHeader, header)
+	if fullServerChecksum != stringToSum(url) {
 		specificResource := Get(fullServerChecksum)
-		specificResource.Headers = resource.Headers
+		specificResource.Headers = resource.Headers.Clone()
 		specificResource.RequestHeaders = clientHeader
 		specificResource.Save()
 	}

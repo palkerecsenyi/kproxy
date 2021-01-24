@@ -36,7 +36,7 @@ func variableUrlSum(url string, clientHeaders, serverHeaders http.Header) string
 }
 
 func ClientUrlSum(url string, clientHeaders http.Header) string {
-	resource := Get(url)
+	resource := Get(stringToSum(url))
 	return variableUrlSum(url, clientHeaders, resource.Headers)
 }
 

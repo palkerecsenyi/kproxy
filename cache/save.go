@@ -10,12 +10,7 @@ import (
 )
 
 func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
-	userData, ok := ctx.UserData.(ProxyCacheState)
-	if !ok {
-		return
-	}
-
-	urlSum := metadata.ServerUrlSum(ctx.Req.URL.String(), userData.RequestHeaders, resp.Header)
+	urlSum := metadata.ServerUrlSum(resp.Request.URL.String(), resp.Request.Header, resp.Header)
 	if !shouldSave(resp, ctx, urlSum) {
 		return
 	}
@@ -34,7 +29,7 @@ func Save(resp *http.Response, ctx *goproxy.ProxyCtx) {
 	}
 
 	metadata.SetMimeType(urlSum, contentType)
-	metadata.SetRelevantHeaders(ctx.Req.URL.String(), resp.Header, userData.RequestHeaders, cacheableHeaders)
+	metadata.SetRelevantHeaders(resp.Request.URL.String(), resp.Header, resp.Request.Header, cacheableHeaders)
 
 	err := os.WriteFile(
 		helpers.GetObjectPath(urlSum),
