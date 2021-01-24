@@ -22,6 +22,7 @@ func Init() {
 	if err != nil {
 		panic(err)
 	}
+	_ = db.Merge()
 
 	_db = db
 }

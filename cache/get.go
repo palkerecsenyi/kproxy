@@ -13,7 +13,8 @@ import (
 
 func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 	userData := ProxyCacheState{
-		FromCache: false,
+		FromCache:      false,
+		RequestHeaders: req.Header.Clone(),
 	}
 
 	urlSum := metadata.ClientUrlSum(req.URL.String(), req.Header)
@@ -29,7 +30,8 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 		return nil
 	}
 
-	metadata.IncrementVisits(urlSum)
+	resourceOperations := metadata.SingleOperation(req.URL.String())
+	resourceOperations.IncrementVisits()
 
 	expired, expiresInSeconds := metadata.GetExpired(urlSum)
 	if expired {

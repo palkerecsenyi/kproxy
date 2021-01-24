@@ -6,57 +6,93 @@ import (
 	"time"
 )
 
-func SetMaxAge(fileName string, maxAge time.Duration) {
+type MultiOperationContext struct {
+	PrimaryResource  string
+	SpecificResource string
+}
+
+// generates a context to perform operations through
+func MultiOperation(
+	url string,
+	responseHeader,
+	requestHeader http.Header,
+) MultiOperationContext {
+	context := MultiOperationContext{
+		PrimaryResource: stringToSum(url),
+	}
+	context.SpecificResource = ServerUrlSum(url, requestHeader, responseHeader)
+
+	return context
+}
+
+func SingleOperation(url string) MultiOperationContext {
+	summedUrl := stringToSum(url)
+	return MultiOperationContext{
+		PrimaryResource:  summedUrl,
+		SpecificResource: summedUrl,
+	}
+}
+
+func (context *MultiOperationContext) performOperation(callback func(resourceId string)) {
+	callback(context.PrimaryResource)
+	if context.PrimaryResource != context.SpecificResource {
+		callback(context.SpecificResource)
+	}
+}
+
+func (context *MultiOperationContext) SetMaxAge(maxAge time.Duration) {
 	if maxAge.Seconds() < 0 {
 		return
 	}
 
-	resource := Get(fileName)
-	resource.Expiry = time.Now().Add(maxAge).Unix()
-	resource.Save()
+	context.performOperation(func(resourceId string) {
+		resource := Get(resourceId)
+		resource.Expiry = time.Now().Add(maxAge).Unix()
+		resource.Save()
+	})
 }
 
-func SetMimeType(fileName, mimeType string) {
-	resource := Get(fileName)
-	resource.MimeType = mimeType
-	resource.Save()
+func (context *MultiOperationContext) SetMimeType(mimeType string) {
+	context.performOperation(func(resourceId string) {
+		resource := Get(resourceId)
+		resource.MimeType = mimeType
+		resource.Save()
+	})
 }
 
-func IncrementVisits(fileName string) {
-	resource := Get(fileName)
-	resource.IncrementVisits()
+func (context *MultiOperationContext) IncrementVisits() {
+	context.performOperation(func(resourceId string) {
+		resource := Get(resourceId)
+		resource.IncrementVisits()
+	})
 }
 
-func SetRelevantHeaders(url string, header, clientHeader http.Header, headerNames []string) {
-	resource := Get(stringToSum(url))
-	resource.RequestHeaders = clientHeader
-	resource.Headers = make(http.Header)
+func (context *MultiOperationContext) SetRelevantHeaders(headerNames []string, responseHeader, requestHeader http.Header) {
+	context.performOperation(func(resourceId string) {
+		resource := Get(resourceId)
+		resource.RequestHeaders = requestHeader
+		resource.Headers = make(http.Header)
 
-	for key, values := range header {
-		if !helpers.SliceIterator(func(value string) bool {
-			return http.CanonicalHeaderKey(key) == http.CanonicalHeaderKey(value)
-		}, headerNames) {
-			continue
+		for key, values := range responseHeader {
+			if !helpers.SliceIterator(func(value string) bool {
+				return http.CanonicalHeaderKey(key) == http.CanonicalHeaderKey(value)
+			}, headerNames) {
+				continue
+			}
+
+			for _, value := range values {
+				resource.Headers.Add(key, value)
+			}
 		}
 
-		for _, value := range values {
-			resource.Headers.Add(key, value)
-		}
-	}
-
-	resource.Save()
-
-	fullServerChecksum := ServerUrlSum(url, clientHeader, header)
-	if fullServerChecksum != stringToSum(url) {
-		specificResource := Get(fullServerChecksum)
-		specificResource.Headers = resource.Headers.Clone()
-		specificResource.RequestHeaders = clientHeader
-		specificResource.Save()
-	}
+		resource.Save()
+	})
 }
 
-func SetForceCache(fileName string, forced bool) {
-	resource := Get(fileName)
-	resource.CachedForOverride = forced
-	resource.Save()
+func (context *MultiOperationContext) SetForceCache(forced bool) {
+	context.performOperation(func(resourceId string) {
+		resource := Get(resourceId)
+		resource.CachedForOverride = forced
+		resource.Save()
+	})
 }
