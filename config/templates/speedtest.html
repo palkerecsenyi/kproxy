@@ -6,22 +6,33 @@
 </head>
 <body>
 
+<label for="amount">Megabytes</label>
+<input id="amount" type="number" value="250" min="0" max="1000" /><br/>
+<button id="start">
+    Go!
+</button>
+
 <p id="status">
-    Running LAN speed test of 250MB...
+
 </p>
 
 <script type="application/javascript">
-    const start = performance.now()
-    fetch(
-        '/speed-test/random',
-    )
-    .then(() => {
-        const millisecondsElapsed = performance.now() - start;
-        const secondsElapsed = millisecondsElapsed / 1000;
-        const avgSpeed = 250 / secondsElapsed;
-        const status = document.getElementById("status")
-        status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download 250MB. Average: ${avgSpeed.toFixed(3)}MB/s`
-    });
+    document.getElementById("start").addEventListener("click", () => {
+        const megabytes = parseInt(document.getElementById("amount").value);
+        const status = document.getElementById("status");
+        status.innerText = "Running test...";
+
+        const start = performance.now()
+        fetch(
+            '/speed-test/random?mb=' + megabytes,
+        )
+            .then(() => {
+                const millisecondsElapsed = performance.now() - start;
+                const secondsElapsed = millisecondsElapsed / 1000;
+                const avgSpeed = 250 / secondsElapsed;
+                status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabytes}MB. Average: ${avgSpeed.toFixed(3)}MB/s`
+            });
+    })
 </script>
 
 </body>
