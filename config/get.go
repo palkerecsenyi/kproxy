@@ -5,8 +5,10 @@ import (
 	"github.com/dustin/go-humanize"
 	"kproxy/certificate"
 	"kproxy/eviction"
+	"kproxy/helpers"
 	"kproxy/metadata"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -29,6 +31,9 @@ func reportStatus(res http.ResponseWriter, req *http.Request) {
 	storageUsage := eviction.CalculateStorageUsage()
 	data["cache_usage_bytes"] = storageUsage
 	data["cache_usage_human"] = humanize.Bytes(uint64(storageUsage))
+
+	files, _ := os.ReadDir(helpers.GetPath())
+	data["cache_object_count"] = len(files)
 
 	data["your_ip"] = req.RemoteAddr
 	data["my_time"] = time.Now().Format(time.RFC3339)
