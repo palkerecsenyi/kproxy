@@ -18,8 +18,12 @@ func GetLogs(since time.Time) []RequestLog {
 		data := RequestLog{}
 		_ = json.Unmarshal(rawData, &data)
 
-		if data.Timestamp.Before(since) {
+		if data.Timestamp.Before(time.Now().AddDate(0, 0, -7)) {
 			_ = db.Delete(key)
+			return nil
+		}
+
+		if data.Timestamp.Before(since) {
 			return nil
 		}
 
