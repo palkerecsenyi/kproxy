@@ -20,33 +20,41 @@ func _headerContainsAny(headerValue string, key ...string) bool {
 	return helpers.SliceContainsAnyString(headerSlice, key...)
 }
 
+// RFC7234 Section 3: Storing responses in Caches https://tools.ietf.org/html/rfc7234#section-3
 func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx, urlSum string) bool {
-	// don't even _try_ to cache anything that isn't http/s
+	// point 1 – requests that aren't http or https are not understood by the server
 	urlScheme := ctx.Req.URL.Scheme
 	if urlScheme != "http" && urlScheme != "https" {
 		return false
 	}
 
-	// other methods are almost never repeatable
+	// point 2 – only successful responses
+	responseCode := resp.StatusCode
+	if responseCode < 200 || responseCode > 299 {
+		return false
+	}
+
+	// also point 1 — non-GET requests are buggy to cache
 	method := ctx.Req.Method
 	if method != "GET" {
 		return false
 	}
 
-	// no point in saving unsuccessful requests or redirects
-	// however, 304s are often sent by other caching servers, so we can cache those too
-	responseCode := resp.StatusCode
-	if responseCode < 200 || (responseCode >= 300 && responseCode != 304) {
-		return false
-	}
-
-	// disallow caching anything that isn't an accept mime type
+	// point 1 — we only cache MIME types that are configured as cacheable
+	// responses without Content-Type headers are inherently invalid
 	contentType := resp.Header.Get("Content-Type")
 	if !helpers.SliceContainsPrefix(contentType, allowedContentTypes) {
 		return false
 	}
 
+	// point 5 — cannot be overridden for security reasons
+	if resp.Header.Get("Authorization") != "" {
+		// does not implement section 3.2 yet
+		return false
+	}
+
 	// these overrides only override server Cache-Control headers
+	// configurable overrides aren't defined in RFC7234
 	switch shouldCacheUrl(ctx.Req, contentType) {
 	case forceCache:
 		return true
@@ -58,7 +66,8 @@ func shouldSave(resp *http.Response, ctx *goproxy.ProxyCtx, urlSum string) bool 
 		}
 	}
 
-	// don't cache if the server doesn't want us to
+	// point 2 & 3
+	// currently, we treat no-cache as synonymous to no-store
 	cacheControl := resp.Header.Get("Cache-Control")
 	if _headerContainsAny(cacheControl, "no-cache", "no-store", "private") {
 		return false

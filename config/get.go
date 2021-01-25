@@ -7,8 +7,10 @@ import (
 	"kproxy/eviction"
 	"kproxy/helpers"
 	"kproxy/metadata"
+	"kproxy/metadata/analytics"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -37,6 +39,25 @@ func reportStatus(res http.ResponseWriter, req *http.Request) {
 
 	data["your_ip"] = req.RemoteAddr
 	data["my_time"] = time.Now().Format(time.RFC3339)
+
+	sendJson(data, 200, res)
+}
+
+func getLogs(res http.ResponseWriter, req *http.Request) {
+	data := getJsonMap()
+
+	daysString := req.URL.Query().Get("days")
+	days := 1
+	if daysString != "" {
+		days, _ = strconv.Atoi(daysString)
+	}
+
+	logs := analytics.GetLogs(time.Now().AddDate(0, 0, -days))
+	totalSavings := analytics.SumSavings(logs)
+
+	data["total_savings_bytes"] = totalSavings
+	data["total_savings_human"] = humanize.Bytes(totalSavings)
+	data["logs"] = logs
 
 	sendJson(data, 200, res)
 }

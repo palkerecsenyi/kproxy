@@ -89,6 +89,7 @@ func (context *MultiOperationContext) SetRelevantHeaders(headerNames []string, r
 	})
 }
 
+// set whether the resource is only being cached because of an override
 func (context *MultiOperationContext) SetForceCache(forced bool) {
 	context.performOperation(func(resourceId string) {
 		resource := Get(resourceId)

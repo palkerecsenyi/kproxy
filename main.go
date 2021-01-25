@@ -9,6 +9,7 @@ import (
 	"kproxy/config"
 	"kproxy/cron"
 	"kproxy/metadata"
+	"kproxy/metadata/analytics"
 	"log"
 	"net/http"
 	"regexp"
@@ -54,8 +55,10 @@ func main() {
 
 			resp.Header.Add("X-Cache-User", metadata.GetUserId(ctx.Req))
 			if userData.FromCache {
+				go analytics.LogRequest(resp.Request.URL, true, uint64(resp.ContentLength))
 				resp.Header.Add("X-Cache", "Hit from kProxy")
 			} else {
+				go analytics.LogRequest(resp.Request.URL, false, 0)
 				resp.Header.Add("X-Cache-Sum", resourceOperations.SpecificResource)
 				resp.Header.Add("X-Cache", "Miss from kProxy")
 				defer cache.Save(resp, ctx)

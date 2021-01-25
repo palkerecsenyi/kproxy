@@ -42,6 +42,7 @@ type Resource struct {
 	DownloadStatus string
 }
 
+// name refers to an encoded checksum
 func Get(name string) *Resource {
 	resource := &Resource{
 		Name: name,

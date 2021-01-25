@@ -16,6 +16,7 @@ var cacheableHeaders = []string{
 	"age",
 	"expires",
 	"vary",
+	"last-modified",
 }
 
 // these MIME types are cached, and nothing else is
