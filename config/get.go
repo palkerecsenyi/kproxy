@@ -8,6 +8,7 @@ import (
 	"kproxy/helpers"
 	"kproxy/metadata"
 	"kproxy/metadata/analytics"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -54,10 +55,12 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 
 	logs := analytics.GetLogs(time.Now().AddDate(0, 0, 0-days))
 	totalSavings := analytics.SumSavings(logs)
+	fractionCached := analytics.FractionCached(logs)
 
+	data["logs"] = logs
 	data["total_savings_bytes"] = totalSavings
 	data["total_savings_human"] = humanize.Bytes(totalSavings)
-	data["logs"] = logs
+	data["fraction_cached"] = math.Floor(fractionCached*1000) / 1000
 
 	sendJson(data, 200, res)
 }

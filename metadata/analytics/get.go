@@ -42,3 +42,17 @@ func SumSavings(logs []RequestLog) uint64 {
 	}
 	return savings
 }
+
+func FractionCached(logs []RequestLog) float64 {
+	var cached float64
+	var uncached float64
+	for _, log := range logs {
+		if log.Cached {
+			cached++
+		} else {
+			uncached++
+		}
+	}
+
+	return (cached) / (cached + uncached)
+}
