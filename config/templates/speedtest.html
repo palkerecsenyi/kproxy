@@ -30,10 +30,11 @@
 
         const start = performance.now()
         fetch(
-            '/speed-test/random?mb=' + Math.floor(megabits / 8),
+            '/speed-test/random?mb=' + (megabits / 8).toFixed(4),
         )
             .then(e => e.blob())
-            .then(() => {
+            .then((e) => {
+                console.log(e);
                 const millisecondsElapsed = performance.now() - start;
                 const secondsElapsed = millisecondsElapsed / 1000;
                 const avgSpeed = megabits / secondsElapsed;
