@@ -52,7 +52,7 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 		days, _ = strconv.Atoi(daysString)
 	}
 
-	logs := analytics.GetLogs(time.Now().AddDate(0, 0, -days))
+	logs := analytics.GetLogs(time.Now().AddDate(0, 0, 0-days))
 	totalSavings := analytics.SumSavings(logs)
 
 	data["total_savings_bytes"] = totalSavings
