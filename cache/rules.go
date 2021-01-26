@@ -17,6 +17,7 @@ var cacheableHeaders = []string{
 	"expires",
 	"vary",
 	"last-modified",
+	"etag",
 }
 
 // these MIME types are cached, and nothing else is
