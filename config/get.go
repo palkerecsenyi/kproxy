@@ -32,8 +32,10 @@ func reportStatus(res http.ResponseWriter, req *http.Request) {
 	data["cpu"] = cpuUsage
 
 	storageUsage := eviction.CalculateStorageUsage()
-	data["cache_usage_bytes"] = storageUsage
-	data["cache_usage_human"] = humanize.Bytes(uint64(storageUsage))
+	usage := getJsonMap()
+	usage["bytes"] = storageUsage
+	usage["human"] = humanize.Bytes(uint64(storageUsage))
+	data["cache_usage"] = usage
 
 	files, _ := os.ReadDir(helpers.GetPath())
 	data["cache_object_count"] = len(files)
@@ -58,9 +60,12 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 	fractionCached := analytics.FractionCached(logs)
 
 	data["logs"] = logs
-	data["total_savings_bytes"] = totalSavings
-	data["total_savings_human"] = humanize.Bytes(totalSavings)
 	data["fraction_cached"] = math.Floor(fractionCached*1000) / 1000
+
+	savings := getJsonMap()
+	savings["bytes"] = totalSavings
+	savings["human"] = humanize.Bytes(totalSavings)
+	data["cache_savings"] = savings
 
 	sendJson(data, 200, res)
 }
@@ -101,8 +106,11 @@ func testCache(res http.ResponseWriter, req *http.Request) {
 
 	score, size := eviction.ScoreFile(cacheSum)
 	data["score"] = score
-	data["size_bytes"] = size
-	data["size_human"] = humanize.Bytes(uint64(size))
+
+	sizeData := getJsonMap()
+	sizeData["bytes"] = size
+	sizeData["human"] = humanize.Bytes(uint64(size))
+	data["size"] = sizeData
 
 	sendJson(data, 200, res)
 }

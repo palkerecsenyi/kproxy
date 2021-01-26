@@ -18,7 +18,7 @@ type RequestLog struct {
 func LogRequest(url *url.URL, cached bool, size uint64) {
 	log := RequestLog{
 		Hostname:  url.Hostname(),
-		Timestamp: time.Now(),
+		Timestamp: time.Now().Round(1 * time.Millisecond),
 	}
 
 	defer func() {
