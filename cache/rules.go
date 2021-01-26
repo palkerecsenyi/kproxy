@@ -61,6 +61,12 @@ var neverCache = []metadata.CacheRule{
 	{
 		Glob: "**cloud.google.com/*",
 	},
+	{
+		Glob: "*.spotify.com/*",
+	},
+	{
+		Glob: "spotify.com/*",
+	},
 }
 
 // returns true for a positive match, false for no match
