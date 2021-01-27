@@ -6,9 +6,11 @@ import (
 	"time"
 )
 
-func GetLogs(since time.Time) []RequestLog {
+// (unordered requests, last modified)
+func GetLogs(since time.Time) ([]RequestLog, time.Time) {
 	var logs []RequestLog
 	db := metadata.GetDatabaseSingleton()
+	var lastModified time.Time
 	_ = db.Scan([]byte("log-"), func(key []byte) error {
 		rawData, err := db.Get(key)
 		if err != nil {
@@ -28,11 +30,14 @@ func GetLogs(since time.Time) []RequestLog {
 		}
 
 		logs = append(logs, data)
+		if data.Timestamp.After(lastModified) {
+			lastModified = data.Timestamp
+		}
 
 		return nil
 	})
 
-	return logs
+	return logs, lastModified
 }
 
 func SumSavings(logs []RequestLog) uint64 {

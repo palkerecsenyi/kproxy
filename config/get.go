@@ -21,7 +21,7 @@ func reportStatus(res http.ResponseWriter, req *http.Request) {
 	stat, err := linuxproc.ReadStat("/proc/stat")
 	if err != nil {
 		data["error"] = "Failed fetching CPU usage"
-		sendJson(data, 500, res)
+		sendJson(data, 500, false, res)
 		return
 	}
 
@@ -43,7 +43,7 @@ func reportStatus(res http.ResponseWriter, req *http.Request) {
 	data["your_ip"] = req.RemoteAddr
 	data["my_time"] = time.Now().Format(time.RFC3339)
 
-	sendJson(data, 200, res)
+	sendJson(data, 200, false, res)
 }
 
 func getLogs(res http.ResponseWriter, req *http.Request) {
@@ -55,7 +55,19 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 		days, _ = strconv.Atoi(daysString)
 	}
 
-	logs := analytics.GetLogs(time.Now().AddDate(0, 0, 0-days))
+	logs, lastModified := analytics.GetLogs(time.Now().AddDate(0, 0, 0-days))
+	formattedLastModified := lastModified.Format(time.RFC3339)
+	if ifModifiedSince := parseLastModified(req.Header.Get("if-modified-since")); !ifModifiedSince.IsZero() {
+
+		// only give full response if lastModified is after isModifiedSince
+		if !lastModified.After(ifModifiedSince) || ifModifiedSince.Format(time.RFC3339) == formattedLastModified {
+			res.WriteHeader(304)
+			_, _ = res.Write([]byte("Not Modified"))
+			return
+		}
+	}
+	res.Header().Set("last-modified", formattedLastModified)
+
 	totalSavings := analytics.SumSavings(logs)
 	fractionCached := analytics.FractionCached(logs)
 
@@ -67,7 +79,7 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 	savings["human"] = humanize.Bytes(totalSavings)
 	data["cache_savings"] = savings
 
-	sendJson(data, 200, res)
+	sendJson(data, 200, true, res)
 }
 
 func downloadCert(res http.ResponseWriter, _ *http.Request) {
@@ -88,7 +100,7 @@ func testCache(res http.ResponseWriter, req *http.Request) {
 	stat := metadata.GetStat(cacheSum)
 	if stat == nil {
 		data["cached"] = false
-		sendJson(data, 200, res)
+		sendJson(data, 200, false, res)
 		return
 	}
 
@@ -112,5 +124,5 @@ func testCache(res http.ResponseWriter, req *http.Request) {
 	sizeData["human"] = humanize.Bytes(uint64(size))
 	data["size"] = sizeData
 
-	sendJson(data, 200, res)
+	sendJson(data, 200, false, res)
 }
