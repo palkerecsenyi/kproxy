@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 func sendJson(data map[string]interface{}, status int, res http.ResponseWriter) {
@@ -13,6 +14,7 @@ func sendJson(data map[string]interface{}, status int, res http.ResponseWriter) 
 
 	res.Header().Set("Content-Type", "application/json")
 	res.Header().Set("Cache-Control", "no-store")
+	res.Header().Set("Content-Length", strconv.Itoa(len(encodedData)))
 	res.WriteHeader(status)
 	_, _ = res.Write(encodedData)
 }
