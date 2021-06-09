@@ -9,9 +9,11 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 )
 
 func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
+	start := time.Now()
 	userData := ProxyCacheState{
 		FromCache:      false,
 		RequestHeaders: req.Header.Clone(),
@@ -79,6 +81,9 @@ func Get(req *http.Request, ctx *goproxy.ProxyCtx) *http.Response {
 
 	userData.FromCache = true
 	ctx.UserData = userData
+
+	total := time.Since(start).Milliseconds()
+	response.Header.Set("Server-Timing", "cache;dur="+strconv.Itoa(int(total)))
 
 	return response
 }
