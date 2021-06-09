@@ -68,8 +68,8 @@ func main() {
 		return resp
 	})
 
+	log.Println("Listening on " + *port)
 	err := http.ListenAndServe(":"+*port, proxyServer)
-
 	if err != nil {
 		log.Fatal(err)
 	}

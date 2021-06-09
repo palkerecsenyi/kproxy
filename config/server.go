@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -23,6 +24,7 @@ func Start(port string) {
 	server.HandleFunc("/", reportStatus)
 
 	go func() {
+		log.Println("Starting config server on " + port)
 		_ = http.ListenAndServe(":"+port, server)
 	}()
 }
