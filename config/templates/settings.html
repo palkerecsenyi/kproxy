@@ -13,7 +13,9 @@
 </p>
 
 <h2>Caching rules</h2>
-<p>These rules override all built-in rules.</p>
+<p>
+    These rules override all built-in rules. Specified <strong>without</strong> protocol in URL. E.g. <code>*.example.com/test/*</code>
+</p>
 
 {{define "cacheRuleList"}}
     <ul>
@@ -51,7 +53,7 @@
         <option value="never">Never cache</option>
     </select><br/>
 
-    <label for="glob">URL glob</label>
+    <label for="glob">Glob</label>
     <input
             type="text"
             id="glob"
