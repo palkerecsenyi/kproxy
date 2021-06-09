@@ -6,7 +6,15 @@
 </head>
 <body>
 
-<label for="amount">Megabits</label>
+<p>
+    Runs a speed test between you and kProxy, using randomly generated data of a set amount of megabytes.
+</p>
+
+<p>
+    Timing only starts after the first byte is delivered (i.e. final result excludes TTFB).
+</p>
+
+<label for="amount">Megabytes</label>
 <input id="amount" type="number" value="50" min="1" max="500" /><br/>
 <button id="start">
     Go!
@@ -18,10 +26,10 @@
 
 <script type="application/javascript">
     document.getElementById("start").addEventListener("click", () => {
-        const megabits = parseInt(document.getElementById("amount").value);
+        const megabytes = parseInt(document.getElementById("amount").value);
         const status = document.getElementById("status");
 
-        if (megabits <= 0 || megabits > 500) {
+        if (megabytes <= 0 || megabytes > 500) {
             alert("Enter a number between 1 and 500");
             return
         }
@@ -30,15 +38,22 @@
 
         const start = performance.now()
         fetch(
-            '/speed-test/random?mb=' + (megabits / 8).toFixed(4),
+            '/speed-test/random?mb=' + megabytes,
         )
             .then(e => e.blob())
             .then((e) => {
+                const now = performance.now();
+
+                const perfEntries = performance.getEntriesByType('resource');
+                const entry = perfEntries[perfEntries.length - 1];
+                const ttfb = entry.responseStart - entry.requestStart;
+
                 console.log(e);
-                const millisecondsElapsed = performance.now() - start;
+
+                const millisecondsElapsed = now - start - ttfb;
                 const secondsElapsed = millisecondsElapsed / 1000;
-                const avgSpeed = megabits / secondsElapsed;
-                status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabits} megabits. Average: ${avgSpeed.toFixed(3)}Mb/s`
+                const avgSpeed = (megabytes * 8) / secondsElapsed;
+                status.innerText = `Done! Took ${secondsElapsed.toFixed(2)}s to download ${megabytes} megabytes. Average: ${avgSpeed.toFixed(3)}Mb/s`
             });
     })
 </script>
