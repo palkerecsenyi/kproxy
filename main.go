@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/elazarl/goproxy"
-	"github.com/lucas-clemente/quic-go/http3"
 	"kproxy/cache"
 	"kproxy/certificate"
 	"kproxy/config"
@@ -18,7 +17,7 @@ import (
 
 func main() {
 	cleanMode := flag.Bool("clean", false, "Run a cache clean.")
-	port := flag.String("port", "443", "The port to run the proxy server on")
+	port := flag.String("port", "80", "The port to run the proxy server on")
 	enableConfigServer := flag.Bool("config", true, "Enable an HTTP server to allow proxy configuration")
 	configServerPort := flag.String("config-port", "8080", "The port to run the HTTP config server on (if enabled)")
 	flag.Parse()
@@ -70,8 +69,7 @@ func main() {
 	})
 
 	log.Println("Listening on " + *port)
-	cert, key := certificate.GetPaths()
-	err := http3.ListenAndServe(":"+*port, cert, key, proxyServer)
+	err := http.ListenAndServe(":"+*port, proxyServer)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -36,7 +36,3 @@ func SetCA() {
 	goproxy.HTTPMitmConnect = &goproxy.ConnectAction{Action: goproxy.ConnectHTTPMitm, TLSConfig: tlsConfig}
 	goproxy.RejectConnect = &goproxy.ConnectAction{Action: goproxy.ConnectReject, TLSConfig: tlsConfig}
 }
-
-func GetPaths() (string, string) {
-	return os.Getenv("KPROXY_CERT"), os.Getenv("KPROXY_KEY")
-}

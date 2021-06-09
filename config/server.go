@@ -1,8 +1,6 @@
 package config
 
 import (
-	"github.com/lucas-clemente/quic-go/http3"
-	"kproxy/certificate"
 	"log"
 	"net/http"
 )
@@ -27,7 +25,6 @@ func Start(port string) {
 
 	go func() {
 		log.Println("Starting config server on " + port)
-		cert, key := certificate.GetPaths()
-		_ = http3.ListenAndServe(":"+port, cert, key, server)
+		_ = http.ListenAndServe(":"+port, server)
 	}()
 }
