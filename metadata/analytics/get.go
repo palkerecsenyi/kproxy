@@ -7,7 +7,7 @@ import (
 )
 
 // (unordered requests, last modified)
-func GetLogs(since time.Time) ([]RequestLog, time.Time) {
+func GetLogs(since time.Time, requireCached bool) ([]RequestLog, time.Time) {
 	var logs []RequestLog
 	db := metadata.GetDatabaseSingleton()
 	var lastModified time.Time
@@ -26,6 +26,10 @@ func GetLogs(since time.Time) ([]RequestLog, time.Time) {
 		}
 
 		if data.Timestamp.Before(since) {
+			return nil
+		}
+
+		if requireCached && !data.Cached {
 			return nil
 		}
 

@@ -55,7 +55,8 @@ func getLogs(res http.ResponseWriter, req *http.Request) {
 		days, _ = strconv.Atoi(daysString)
 	}
 
-	logs, lastModified := analytics.GetLogs(time.Now().AddDate(0, 0, 0-days))
+	requireCached := req.URL.Query().Get("only-cached")
+	logs, lastModified := analytics.GetLogs(time.Now().AddDate(0, 0, 0-days), requireCached == "1")
 	formattedLastModified := lastModified.Format(time.RFC3339)
 	if ifModifiedSince := parseLastModified(req.Header.Get("if-modified-since")); !ifModifiedSince.IsZero() {
 

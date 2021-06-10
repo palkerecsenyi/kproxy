@@ -39,6 +39,10 @@ func main() {
 	certificate.SetCA()
 
 	proxyServer := goproxy.NewProxyHttpServer()
+	proxyServer.Tr = &http.Transport{
+		Proxy:             http.ProxyFromEnvironment,
+		ForceAttemptHTTP2: true,
+	}
 
 	condition := goproxy.ReqHostMatches(regexp.MustCompile("^.*$"))
 	proxyServer.OnRequest(condition).HandleConnect(goproxy.AlwaysMitm)
