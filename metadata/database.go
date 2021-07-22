@@ -2,7 +2,7 @@ package metadata
 
 import (
 	"encoding/json"
-	"github.com/prologic/bitcask"
+	"git.mills.io/prologic/bitcask"
 	"kproxy/helpers"
 	"net/http"
 )
